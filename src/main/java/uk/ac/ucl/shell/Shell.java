@@ -38,52 +38,18 @@ public class Shell {
     }
 
     public static void eval(String cmdline, OutputStream output) throws IOException {
-        OutputStreamWriter writer = new OutputStreamWriter(output);
-        CharStream parserInput = CharStreams.fromString(cmdline); 
-        ShellGrammarLexer lexer = new ShellGrammarLexer(parserInput);
-        CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
-        ShellGrammarParser parser = new ShellGrammarParser(tokenStream);
-        ParseTree tree = parser.command();
-        ArrayList<String> rawCommands = new ArrayList<String>();
-        String lastSubcommand = "";
-        for (int i=0; i<tree.getChildCount(); i++) {
-            if (!tree.getChild(i).getText().equals(";")) {
-                lastSubcommand += tree.getChild(i).getText();
-            } else {
-                rawCommands.add(lastSubcommand);
-                lastSubcommand = "";
-            }
+        int pipeIndex = 0;
+    	for(int i = 0; i < cmdline.length(); i++) {
+        	if(cmdline.charAt(i) == '|') {
+        		pipeIndex = i;
+        		break;
+        	}
         }
-        rawCommands.add(lastSubcommand);
-        for (String rawCommand : rawCommands) {
-            String spaceRegex = "[^\\s\"']+|\"([^\"]*)\"|'([^']*)'";
-            ArrayList<String> tokens = new ArrayList<String>();
-            Pattern regex = Pattern.compile(spaceRegex);
-            Matcher regexMatcher = regex.matcher(rawCommand);
-            String nonQuote;
-            while (regexMatcher.find()) {
-                if (regexMatcher.group(1) != null || regexMatcher.group(2) != null) {
-                    String quoted = regexMatcher.group(0).trim();
-                    tokens.add(quoted.substring(1,quoted.length()-1));
-                } else {
-                    nonQuote = regexMatcher.group().trim();
-                    ArrayList<String> globbingResult = new ArrayList<String>();
-                    Path dir = Paths.get(currentDirectory.toString());
-                    DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
-                    for (Path entry : stream) {
-                        globbingResult.add(entry.getFileName().toString());
-                    }
-                    if (globbingResult.isEmpty()) {
-                        globbingResult.add(nonQuote);
-                    }
-                    tokens.addAll(globbingResult);
-                }
-            }
-            String appName = tokens.get(0);
-            ArrayList<String> appArgs = new ArrayList<String>(tokens.subList(1, tokens.size()));
-            Application a = AppFactory.generateApp(appName);
-            a.exec(appArgs, cmdline, writer);
-        }
+        String cmd1 = cmdline.substring(0, pipeIndex - 1);
+        String cmd2 = cmdline.substring(pipeIndex + 2, cmdline.length());
+        Pipe p = new Pipe(new Call(cmd1, output), new Call(cmd2, output), cmdline, output);
+        CommandVisitor v = new Eval();
+        v.visit(p);
     }
 
     public static void main(String[] args) {
