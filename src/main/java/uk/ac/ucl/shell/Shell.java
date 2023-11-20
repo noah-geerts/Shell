@@ -38,18 +38,10 @@ public class Shell {
     }
 
     public static void eval(String cmdline, OutputStream output) throws IOException {
-        int pipeIndex = 0;
-    	for(int i = 0; i < cmdline.length(); i++) {
-        	if(cmdline.charAt(i) == '|') {
-        		pipeIndex = i;
-        		break;
-        	}
-        }
-        String cmd1 = cmdline.substring(0, pipeIndex - 1);
-        String cmd2 = cmdline.substring(pipeIndex + 2, cmdline.length());
-        Pipe p = new Pipe(new Call(cmd1, output), new Call(cmd2, output), cmdline, output);
+    	//create a new call object for the atomic command cmdline, 
+        Call c = new Call(cmdline, "", output);
         CommandVisitor v = new Eval();
-        v.visit(p);
+        c.accept(v);
     }
 
     public static void main(String[] args) {

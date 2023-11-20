@@ -32,8 +32,11 @@ public abstract class Command {
 
 class Call extends Command {
 
-	public Call(String input, OutputStream output) {
+	String atomicCommand;
+	
+	public Call(String atomicCommand, String input, OutputStream output) {
 		super(input, output);
+		this.atomicCommand = atomicCommand;
 	}
 	
 	public void accept(CommandVisitor visitor) throws IOException {
