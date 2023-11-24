@@ -15,12 +15,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Application {
-	public abstract void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException;
+	public abstract void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
 }
 
 class Cd implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.isEmpty()) {
             throw new RuntimeException("cd: missing argument");
         } else if (appArgs.size() > 1) {
@@ -37,7 +37,7 @@ class Cd implements Application{
 }
 
 class Pwd implements Application{
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		writer.write(Shell.getCurrentDirectory());
         writer.write(System.getProperty("line.separator"));
         writer.flush();
@@ -47,7 +47,7 @@ class Pwd implements Application{
 
 class Ls implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		File currDir;
         if (appArgs.isEmpty()) {
             currDir = new File(Shell.getCurrentDirectory());
@@ -79,7 +79,7 @@ class Ls implements Application{
 
 class Cat implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		 if (appArgs.isEmpty()) {
              throw new RuntimeException("cat: missing arguments");
          } else {
@@ -109,7 +109,7 @@ class Cat implements Application{
 
 class Echo implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		boolean atLeastOnePrinted = false;
         for (String arg : appArgs) {
             writer.write(arg);
@@ -128,7 +128,7 @@ class Echo implements Application{
 
 class Head implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.isEmpty()) {
             throw new RuntimeException("head: missing arguments");
         }
@@ -176,7 +176,7 @@ class Head implements Application{
 
 class Tail implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.isEmpty()) {
             throw new RuntimeException("tail: missing arguments");
         }
@@ -231,7 +231,7 @@ class Tail implements Application{
 
 class Grep implements Application{
 
-	public void exec(ArrayList<String> appArgs, OutputStreamWriter writer) throws IOException {
+	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.size() < 2) {
             throw new RuntimeException("grep: wrong number of arguments");
         }
