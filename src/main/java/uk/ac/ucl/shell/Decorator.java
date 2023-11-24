@@ -31,6 +31,7 @@ class UnsafeDecorator extends Decorator
         catch (Exception e)
         {
             writer.write(e.getMessage());
+            writer.write(System.getProperty("line.separator"));
             writer.flush();
         }
     }

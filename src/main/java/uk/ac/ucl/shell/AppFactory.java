@@ -20,6 +20,14 @@ public class AppFactory {
 				return new Tail();
 			case "grep":
 				return new Grep();
+			case "cut":
+				return new Cut();
+			case "find":
+				return new Find();
+			case "uniq":
+				return new Uniq();
+			case "sort":
+				return new Sort();
 			default:
 				throw new RuntimeException(name + ": unknown application");
 		}
