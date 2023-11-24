@@ -11,7 +11,6 @@ public abstract class Decorator implements Application {
         this.decoratedApp = decoratedApp;
     }
 
-    @Override
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         decoratedApp.exec(appArgs, input, writer);
     }
