@@ -1,10 +1,6 @@
 package uk.ac.ucl.shell;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public interface Application {
-	public abstract void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
+    void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
 }
 
 class Cd implements Application{
@@ -78,237 +74,317 @@ class Ls implements Application{
 }
 
 class Cat implements Application{
-
-	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-		 if (appArgs.isEmpty()) {
-             throw new RuntimeException("cat: missing arguments");
-         } else {
-             for (String arg : appArgs) {
-                 Charset encoding = StandardCharsets.UTF_8;
-                 File currFile = new File(Shell.getCurrentDirectory() + File.separator + arg);
-                 if (currFile.exists()) {
-                     Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + arg);
-                     try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
-                         String line = null;
-                         while ((line = reader.readLine()) != null) {
-                             writer.write(String.valueOf(line));
-                             writer.write(System.getProperty("line.separator"));
-                             writer.flush();
-                         }
-                     } catch (IOException e) {
-                         throw new RuntimeException("cat: cannot open " + arg);
-                     }
-                 } else {
-                     throw new RuntimeException("cat: file does not exist");
-                 }
-             }
-         }
-		
-	}
+    public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
+        if (appArgs.isEmpty() && input.isEmpty()) {
+            throw new RuntimeException("cat: missing arguments / empty stdin");
+        } else {
+            for (String arg : appArgs) {
+                Charset encoding = StandardCharsets.UTF_8;
+                File currFile = new File(Shell.getCurrentDirectory() + File.separator + arg);
+                if (currFile.exists()) {
+                    Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + arg);
+                    try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            writer.write(line);
+                            writer.write(System.getProperty("line.separator"));
+                            writer.flush();
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException("cat: cannot open " + arg);
+                    }
+                } else {
+                    throw new RuntimeException("cat: file does not exist");
+                }
+            }
+            if (!input.isEmpty()) {
+                writer.write(input);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+            }
+        }
+    }
 }
 
 class Echo implements Application{
 
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-		boolean atLeastOnePrinted = false;
         for (String arg : appArgs) {
             writer.write(arg);
             writer.write(" ");
             writer.flush();
-            atLeastOnePrinted = true;
         }
-        if (atLeastOnePrinted) {
-            writer.write(System.getProperty("line.separator"));
-            writer.flush();
-        }
-		
+        // echo with no arguments should still print a newline
+        writer.write(System.getProperty("line.separator"));
+        writer.flush();
 	}
 	
 }
 
 class Head implements Application{
-
+    // in the original shell
+    // head can have the form: head -n num file; head file
+    // in real life:
+    // head -q file..; head -v file...; head -n num file; head -c num file; head file
+    private int lineNumber = 10;
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-		if (appArgs.isEmpty()) {
+        if (appArgs.isEmpty() && input.isEmpty()) {
             throw new RuntimeException("head: missing arguments");
         }
-        if (appArgs.size() != 1 && appArgs.size() != 3) {
-            throw new RuntimeException("head: wrong arguments");
+        if (appArgs.isEmpty()) {
+            readFromStdin(input, writer);
         }
-        if (appArgs.size() == 3 && !appArgs.get(0).equals("-n")) {
-            throw new RuntimeException("head: wrong argument " + appArgs.get(0));
+        else if (appArgs.size() == 1) {
+            String fileName = appArgs.get(0);
+            readFromFile(fileName, writer);
         }
-        int headLines = 10;
-        String headArg;
-        if (appArgs.size() == 3) {
-            try {
-                headLines = Integer.parseInt(appArgs.get(1));
-            } catch (Exception e) {
-                throw new RuntimeException("head: wrong argument " + appArgs.get(1));
+        else if(appArgs.size() == 2)
+        {
+            String option = appArgs.get(0);
+            if (!option.equals("-n")) {
+                throw new RuntimeException("head: invalid option");
             }
-            headArg = appArgs.get(2);
-        } else {
-            headArg = appArgs.get(0);
-        }
-        File headFile = new File(Shell.getCurrentDirectory() + File.separator + headArg);
-        if (headFile.exists()) {
-            Charset encoding = StandardCharsets.UTF_8;
-            Path filePath = Paths.get((String) Shell.getCurrentDirectory() + File.separator + headArg);
-            try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
-                for (int i = 0; i < headLines; i++) {
-                    String line = null;
-                    if ((line = reader.readLine()) != null) {
-                        writer.write(line);
-                        writer.write(System.getProperty("line.separator"));
-                        writer.flush();
-                    }
+            else {
+                try {
+                    this.lineNumber = Integer.parseInt(appArgs.get(1));
+                    readFromStdin(input, writer);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException("head: cannot open " + headArg);
+                catch (NumberFormatException e) {
+                    throw new RuntimeException("head: second arg is not an integer");
+                }
+
+            }
+        }
+        else if (appArgs.size() == 3){
+            String option = appArgs.get(0);
+            if (!option.equals("-n")) {
+                throw new RuntimeException("head: invalid option");
+            }
+            else {
+                try {
+                    this.lineNumber = Integer.parseInt(appArgs.get(1));
+                        String fileName = appArgs.get(2);
+                        readFromFile(fileName, writer);
+                }
+                catch (NumberFormatException e) {
+                    throw new RuntimeException("head: second arg is not an integer");
+                }
+            }
+        }
+        else {
+            throw new RuntimeException("head: invalid number of arguments");
+        }
+    }
+    // Can pass in an array instead of lineNumber to allow more options.
+    private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
+            writeLines(reader, writer);
+        }
+    }
+
+    private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
+        Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
+        if (Files.exists(filePath)) {
+            try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
+                writeLines(reader, writer);
             }
         } else {
-            throw new RuntimeException("head: " + headArg + " does not exist");
+            throw new RuntimeException("head: file not found: " + fileName);
         }
-		
-	}
-	
+    }
+    private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
+        String line;
+        int counter = 0;
+        while ((line = reader.readLine()) != null && counter < this.lineNumber) {
+            writer.write(line);
+            writer.write(System.getProperty("line.separator"));
+            writer.flush();
+            counter++;
+        }
+    }
 }
 
 class Tail implements Application{
-
+    private int lineNumber = 10;
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-		if (appArgs.isEmpty()) {
+        // default number of lines is 10
+        if (appArgs.isEmpty() && input.isEmpty()) {
             throw new RuntimeException("tail: missing arguments");
         }
-        if (appArgs.size() != 1 && appArgs.size() != 3) {
-            throw new RuntimeException("tail: wrong arguments");
+        if (appArgs.isEmpty()) {
+            readFromStdin(input, writer);
         }
-        if (appArgs.size() == 3 && !appArgs.get(0).equals("-n")) {
-            throw new RuntimeException("tail: wrong argument " + appArgs.get(0));
+        else if (appArgs.size() == 1) {
+            String fileName = appArgs.get(0);
+            readFromFile(fileName, writer);
         }
-        int tailLines = 10;
-        String tailArg;
-        if (appArgs.size() == 3) {
-            try {
-                tailLines = Integer.parseInt(appArgs.get(1));
-            } catch (Exception e) {
-                throw new RuntimeException("tail: wrong argument " + appArgs.get(1));
+        else if(appArgs.size() == 2)
+        {
+            String option = appArgs.get(0);
+            if (!option.equals("-n")) {
+                throw new RuntimeException("tail: invalid option");
             }
-            tailArg = appArgs.get(2);
-        } else {
-            tailArg = appArgs.get(0);
+            else {
+                try {
+                    this.lineNumber = Integer.parseInt(appArgs.get(1));
+                    readFromStdin(input, writer);
+                }
+                catch (NumberFormatException e) {
+                    throw new RuntimeException("tail: second arg is not an integer");
+                }
+
+            }
         }
-        File tailFile = new File(Shell.getCurrentDirectory() + File.separator + tailArg);
-        if (tailFile.exists()) {
-            Charset encoding = StandardCharsets.UTF_8;
-            Path filePath = Paths.get((String) Shell.getCurrentDirectory() + File.separator + tailArg);
-            ArrayList<String> storage = new ArrayList<>();
-            try (BufferedReader reader = Files.newBufferedReader(filePath, encoding)) {
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    storage.add(line);
+        else if (appArgs.size() == 3){
+            String option = appArgs.get(0);
+            if (!option.equals("-n")) {
+                throw new RuntimeException("tail: invalid option");
+            }
+            else {
+                try {
+                    this.lineNumber = Integer.parseInt(appArgs.get(1));
+                        String fileName = appArgs.get(2);
+                        readFromFile(fileName, writer);
                 }
-                int index = 0;
-                if (tailLines > storage.size()) {
-                    index = 0;
-                } else {
-                    index = storage.size() - tailLines;
+                catch (NumberFormatException e) {
+                    throw new RuntimeException("tail: second arg is not an integer");
                 }
-                for (int i = index; i < storage.size(); i++) {
-                    writer.write(storage.get(i) + System.getProperty("line.separator"));
-                    writer.flush();
-                }            
-            } catch (IOException e) {
-                throw new RuntimeException("tail: cannot open " + tailArg);
+            }
+        }
+        else {
+            throw new RuntimeException("tail: invalid number of arguments");
+        }
+    }
+    private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
+            writeLines(reader, writer);
+        }
+    }
+
+    private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
+        Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
+        if (Files.exists(filePath)) {
+            try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
+                writeLines(reader, writer);
             }
         } else {
-            throw new RuntimeException("tail: " + tailArg + " does not exist");
+            throw new RuntimeException("tail: file not found: " + fileName);
         }
-		
-	}
-	
+    }
+    private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
+        String line;
+        ArrayList<String> storage = new ArrayList<>();
+        while ((line = reader.readLine()) != null) {
+            storage.add(line);
+        }
+        int index;
+        if (this.lineNumber > storage.size()) {
+            index = 0;
+        } else {
+            index = storage.size() - this.lineNumber;
+        }
+        for (int i = index; i < storage.size(); i++) {
+            writer.write(storage.get(i));
+            writer.write(System.getProperty("line.separator"));
+            writer.flush();
+        }
+    }
 }
 
 class Grep implements Application{
-
+    private Pattern grepPattern;
+    private String filename = "";
+    private boolean printFilename = false;
+    private static final int MAX_FILES_LIMIT = 99;
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-		if (appArgs.size() < 2) {
+		if (appArgs.size() == 0) {
             throw new RuntimeException("grep: wrong number of arguments");
         }
-        Pattern grepPattern = Pattern.compile(appArgs.get(0));
+        this.grepPattern = Pattern.compile(appArgs.get(0));
         int numOfFiles = appArgs.size() - 1;
-        Path filePath;
-        Path[] filePathArray = new Path[numOfFiles];
-        Path currentDir = Paths.get(Shell.getCurrentDirectory());
-        for (int i = 0; i < numOfFiles; i++) {
-            filePath = currentDir.resolve(appArgs.get(i + 1));
-            if (Files.notExists(filePath) || Files.isDirectory(filePath) || 
-                !Files.exists(filePath) || !Files.isReadable(filePath)) {
-                throw new RuntimeException("grep: wrong file argument");
+        if (numOfFiles == 0) {
+            if (input.isEmpty()) {
+                throw new RuntimeException("grep: empty stdin");
             }
-            filePathArray[i] = filePath;
-        }
-        for (int j = 0; j < filePathArray.length; j++) {
-            Charset encoding = StandardCharsets.UTF_8;
-            try (BufferedReader reader = Files.newBufferedReader(filePathArray[j], encoding)) {
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    Matcher matcher = grepPattern.matcher(line);
-                    if (matcher.find()) {
-                        if (numOfFiles > 1) {
-                            writer.write(appArgs.get(j+1));
-                            writer.write(":");
-                        }
-                        writer.write(line);
-                        writer.write(System.getProperty("line.separator"));
-                        writer.flush();
-                    }
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("grep: cannot open " + appArgs.get(j + 1));
+            else {
+                readFromStdin(input, writer);
             }
         }
-		
+        else if (numOfFiles == 1) {
+            this.filename = appArgs.get(1);
+            readFromFile(writer);
+        }
+        // limit for performance/ display
+        else if (numOfFiles > 1 && numOfFiles < MAX_FILES_LIMIT) {
+            int i = 1;
+            this.printFilename = true;
+            while (i <= numOfFiles) {
+                this.filename = appArgs.get(i);
+                readFromFile(writer);
+                i+=1;
+            }
+        }
 	}
-	
+    private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
+            writeLines(reader, writer);
+        }
+    }
+    private void readFromFile(OutputStreamWriter writer) throws IOException {
+        Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + this.filename);
+        if (Files.exists(filePath)) {
+            try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
+                writeLines(reader, writer);
+            }
+        } else {
+            throw new RuntimeException("grep: file not found: " + this.filename);
+        }
+    }
+    private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            Matcher matcher = this.grepPattern.matcher(line);
+            if (matcher.find()) {
+                if (this.printFilename) {
+                    writer.write(this.filename);
+                    writer.write(":");
+                }
+                writer.write(line);
+                writer.write(System.getProperty("line.separator"));
+                writer.flush();
+            }
+        }
+    }
 }
-
 class Cut implements Application {
+
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
             throw new RuntimeException("cut: wrong number of arguments");
         }
-        String option = appArgs.get(0);
-        String[] ranges = option.split(",");
+        // assuming "-b" is at index 0
+        String fileName = (appArgs.size() > 2) ? appArgs.get(2) : null;
+        String[] ranges = appArgs.get(1).split(",");
         for (String range : ranges) {
-            processRange(range, appArgs.subList(1, appArgs.size()), writer);
+            processRange(range, fileName, input, writer);
         }
     }
-    private void processRange(String range, List<String> files, OutputStreamWriter writer) throws IOException {
+    private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
         String[] bounds = range.split("-");
-        int start = parseBound(bounds[0]);
-        int end;
-        if (bounds.length > 1){
-            end = parseBound(bounds[1]);
-        }
-        else {
-            end = Integer.MAX_VALUE;
-        }
-        for (String fileName : files) {
+        int start = (bounds[0].isEmpty()) ? 1 : Integer.parseInt(bounds[0]);
+        int end = (bounds.length > 1) ? parseBound(bounds[1]) : Integer.MAX_VALUE;
+        if (fileName == null) {
+            // No file specified, read from stdin
+            processLine(input, start, end, writer);
+        } else {
             processFile(fileName, start, end, writer);
         }
     }
-    private int parseBound(String bound) {
-        return (bound.isEmpty()) ? 1 : Integer.parseInt(bound);
-    }
-
     private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(fileName);
-
-        if (Files.notExists(filePath) || Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
-            throw new RuntimeException("cut: wrong file argument");
+        if (!Files.isReadable(filePath) || Files.isDirectory(filePath)) {
+            throw new RuntimeException("cut: cannot read " + fileName);
         }
-
         try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -318,12 +394,10 @@ class Cut implements Application {
             throw new RuntimeException("cut: cannot open " + fileName);
         }
     }
-
     private void processLine(String line, int start, int end, OutputStreamWriter writer) throws IOException {
         int lineLength = line.length();
         int startIndex = Math.min(start, lineLength);
         int endIndex = Math.min(end, lineLength);
-
         if (startIndex <= endIndex) {
             String substring = line.substring(startIndex - 1, endIndex);
             writer.write(substring);
@@ -334,7 +408,6 @@ class Cut implements Application {
 }
 
 class Find implements Application {
-
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
             throw new RuntimeException("find: wrong number of arguments");
@@ -343,7 +416,6 @@ class Find implements Application {
         String pattern = appArgs.get(1);
         findFiles(path, pattern, writer);
     }
-
     private void findFiles(String path, String pattern, OutputStreamWriter writer) throws IOException {
         try {
             Files.walk(Paths.get(path))
@@ -371,7 +443,6 @@ class Find implements Application {
 }
 
 class Uniq implements Application {
-
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() > 2) {
             throw new RuntimeException("uniq: too many arguments");
@@ -389,7 +460,6 @@ class Uniq implements Application {
         }
         uniqLines(fileName, ignoreCase, input, writer);
     }
-
     // exists to check if filename is null then create readers
     private void uniqLines(String filename, boolean ignoreCase, String input, OutputStreamWriter writer) throws IOException {
         if (filename == null) {

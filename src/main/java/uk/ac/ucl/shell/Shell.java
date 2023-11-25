@@ -22,9 +22,6 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import uk.ac.ucl.shell.ShellGrammarLexer;
-import uk.ac.ucl.shell.ShellGrammarParser;
-
 public class Shell {
 
     private static String currentDirectory = System.getProperty("user.dir");
