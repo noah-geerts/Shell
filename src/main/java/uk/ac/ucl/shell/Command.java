@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import java.util.List;
+
 public abstract class Command {
 	public abstract void accept (CommandVisitor visitor) throws IOException;
 	private OutputStream output;
@@ -61,16 +63,24 @@ class Pipe extends Command {
 	
 }
 
+
 class Seq extends Command {
-	Command left;
-	Command right;
-	public Seq(Command left, Command right, String input, OutputStream output) {
+	private List<Command> subOperations;
+
+	public Seq(List<Command> subOperations, String input, OutputStream output) {
 		super(input, output);
-		this.left = left;
-		this.right = right;
+		this.subOperations = subOperations;
 	}
+
+	public List<Command> getSubOperations() {
+		return subOperations;
+	}
+
+	public void setSubOperations(List<Command> subOperations) {
+		this.subOperations = subOperations;
+	}
+
 	public void accept(CommandVisitor visitor) throws IOException {
 		visitor.visit(this);
 	}
-	
 }

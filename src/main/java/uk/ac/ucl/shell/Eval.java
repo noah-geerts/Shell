@@ -132,8 +132,9 @@ public class Eval implements CommandVisitor {
 	
 	//when we visit Seq, we simply call accept on the left Command then the right Command
 	public void visit(Seq seq) throws IOException {
-		seq.left.accept(this);
-		seq.right.accept(this);
+		for (Command subOperation : seq.getSubOperations()) {
+			subOperation.accept(this);
+		}
 	}
 	
 	public static String getFileText(String fileName) throws IOException {
