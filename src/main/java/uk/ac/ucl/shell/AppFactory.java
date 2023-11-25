@@ -3,6 +3,9 @@ package uk.ac.ucl.shell;
 public class AppFactory {
 
 	public static Application generateApp(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Application name cannot be null or empty");
+		}
 		switch(name) {
 			case "cd":
 				return new Cd();

@@ -84,7 +84,7 @@ public class Eval implements CommandVisitor {
         }
         //we can only have one input file or output file
         if(outputFileNames.size() > 1 || inputFileNames.size() > 1) {
-        	throw new IOException();
+        	throw new IOException("too many < or >");
         }
         
         //separate appArgs from appName, generate the correct app, making it unsafe if it starts with _
