@@ -58,7 +58,7 @@ class Ls implements Application{
             for (File file : listOfFiles) {
                 if (!file.getName().startsWith(".")) {
                     writer.write(file.getName());
-                    writer.write("\t");
+                    writer.write(System.getProperty("line.separator"));
                     writer.flush();
                     atLeastOnePrinted = true;
                 }
@@ -356,7 +356,7 @@ class Grep implements Application{
         }
     }
 }
-class Cut implements Application {
+/*class Cut implements Application {
 
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
@@ -405,7 +405,7 @@ class Cut implements Application {
             writer.flush();
         }
     }
-}
+}*/
 
 class Find implements Application {
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {

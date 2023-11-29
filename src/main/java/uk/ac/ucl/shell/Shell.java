@@ -34,13 +34,6 @@ public class Shell {
     	return currentDirectory;
     }
 
-    public static void eval(String cmdline, OutputStream output) throws IOException {
-    	//create a new call object for the atomic command cmdline, 
-        Call c = new Call(cmdline, "", output);
-        CommandVisitor v = new Eval();
-        c.accept(v);
-    }
-
     public static void main(String[] args) {
         if (args.length > 0) {
             if (args.length != 2) {
@@ -72,6 +65,19 @@ public class Shell {
                 input.close();
             }
         }
+    }
+    
+    public static void eval(String cmdline, OutputStream output) throws IOException {
+    	//create a new call object for the atomic command cmdline, 
+    	CharStream parserInput = CharStreams.fromString(cmdline); 
+        ShellGrammarLexer lexer = new ShellGrammarLexer(parserInput);
+        CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
+        ShellGrammarParser parser = new ShellGrammarParser(tokenStream);
+        ParseTree tree = parser.root();
+        
+        Command c = tree.accept(new CommandConverter());
+        
+        c.accept(new Eval());
     }
 
 }

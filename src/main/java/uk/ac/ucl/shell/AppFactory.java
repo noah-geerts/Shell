@@ -23,8 +23,8 @@ public class AppFactory {
 				return new Tail();
 			case "grep":
 				return new Grep();
-			case "cut":
-				return new Cut();
+			/*case "cut":
+				return new Cut();*/
 			case "find":
 				return new Find();
 			case "uniq":

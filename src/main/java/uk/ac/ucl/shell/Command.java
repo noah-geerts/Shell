@@ -51,7 +51,7 @@ class Pipe extends Command {
 	Command left;
 	Command right;
 	
-	public Pipe(Command left, Call right, String input, OutputStream output) {
+	public Pipe(Command left, Command right, String input, OutputStream output) {
 		super(input, output);
 		this.left = left;
 		this.right = right;
@@ -65,19 +65,13 @@ class Pipe extends Command {
 
 
 class Seq extends Command {
-	private List<Command> subOperations;
-
-	public Seq(List<Command> subOperations, String input, OutputStream output) {
+	Command left;
+	Command right;
+	
+	public Seq(Command left, Command right, String input, OutputStream output) {
 		super(input, output);
-		this.subOperations = subOperations;
-	}
-
-	public List<Command> getSubOperations() {
-		return subOperations;
-	}
-
-	public void setSubOperations(List<Command> subOperations) {
-		this.subOperations = subOperations;
+		this.left = left;
+		this.right = right;
 	}
 
 	public void accept(CommandVisitor visitor) throws IOException {
