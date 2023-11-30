@@ -12,7 +12,7 @@ class TestShell(unittest.TestCase):
     TEST_DIR = "/test"
 
     @classmethod
-    def eval(cls, cmdline, shell="/comp0010/sh"):
+    def eval(cls, cmdline, shell="sh"):
         volume = cls.TEST_VOLUME + ":" + cls.TEST_DIR
         args = [
             "docker",
