@@ -356,23 +356,28 @@ class Grep implements Application{
         }
     }
 }
-/*class Cut implements Application {
 
+class Cut implements Application {
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
             throw new RuntimeException("cut: wrong number of arguments");
         }
-        // assuming "-b" is at index 0
+
+        // Assuming "-b" is at index 0
+        String option = appArgs.get(1);
         String fileName = (appArgs.size() > 2) ? appArgs.get(2) : null;
-        String[] ranges = appArgs.get(1).split(",");
+        String[] ranges = option.split(",");
+
         for (String range : ranges) {
             processRange(range, fileName, input, writer);
         }
     }
+
     private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
         String[] bounds = range.split("-");
-        int start = (bounds[0].isEmpty()) ? 1 : Integer.parseInt(bounds[0]);
+        int start = parseBound(bounds[0]);
         int end = (bounds.length > 1) ? parseBound(bounds[1]) : Integer.MAX_VALUE;
+
         if (fileName == null) {
             // No file specified, read from stdin
             processLine(input, start, end, writer);
@@ -380,11 +385,18 @@ class Grep implements Application{
             processFile(fileName, start, end, writer);
         }
     }
+
+    private int parseBound(String bound) {
+        return (bound.isEmpty()) ? 1 : Integer.parseInt(bound);
+    }
+
     private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(fileName);
+
         if (!Files.isReadable(filePath) || Files.isDirectory(filePath)) {
             throw new RuntimeException("cut: cannot read " + fileName);
         }
+
         try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -394,10 +406,12 @@ class Grep implements Application{
             throw new RuntimeException("cut: cannot open " + fileName);
         }
     }
+
     private void processLine(String line, int start, int end, OutputStreamWriter writer) throws IOException {
         int lineLength = line.length();
         int startIndex = Math.min(start, lineLength);
         int endIndex = Math.min(end, lineLength);
+
         if (startIndex <= endIndex) {
             String substring = line.substring(startIndex - 1, endIndex);
             writer.write(substring);
@@ -460,6 +474,7 @@ class Uniq implements Application {
         }
         uniqLines(fileName, ignoreCase, input, writer);
     }
+
     // exists to check if filename is null then create readers
     private void uniqLines(String filename, boolean ignoreCase, String input, OutputStreamWriter writer) throws IOException {
         if (filename == null) {
