@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Eval implements CommandVisitor {
+public class Eval implements CommandVisitor{
 	//when we visit Call, we split the atomicCommand into the app and its arguments,
 	//then execute the app.
 	public void visit(Call call) throws IOException {
@@ -127,14 +127,14 @@ public class Eval implements CommandVisitor {
 		//convert the byte stream to a string and set it as input of the right Command
 		String leftOutString = leftOutput.toString();
 		pipe.right.setInput(leftOutString);
+		pipe.right.setOutput(pipe.getOutput());
 		pipe.right.accept(this);
 	}
 	
 	//when we visit Seq, we simply call accept on the left Command then the right Command
 	public void visit(Seq seq) throws IOException {
-		for (Command subOperation : seq.getSubOperations()) {
-			subOperation.accept(this);
-		}
+		seq.left.accept(this);
+		seq.right.accept(this);
 	}
 	
 	public static String getFileText(String fileName) throws IOException {
