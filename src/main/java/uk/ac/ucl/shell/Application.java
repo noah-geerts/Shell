@@ -48,7 +48,7 @@ class Ls implements Application{
         if (appArgs.isEmpty()) {
             currDir = new File(Shell.getCurrentDirectory());
         } else if (appArgs.size() == 1) {
-            currDir = new File(appArgs.get(0));
+            currDir = new File(Shell.getCurrentDirectory() + "/" + appArgs.get(0));
         } else {
             throw new RuntimeException("ls: too many arguments");
         }
@@ -58,7 +58,7 @@ class Ls implements Application{
             for (File file : listOfFiles) {
                 if (!file.getName().startsWith(".")) {
                     writer.write(file.getName());
-                    writer.write(System.getProperty("line.separator"));
+                    writer.write("\t");
                     writer.flush();
                     atLeastOnePrinted = true;
                 }
@@ -419,7 +419,7 @@ class Cut implements Application {
             writer.flush();
         }
     }
-}*/
+}
 
 class Find implements Application {
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
