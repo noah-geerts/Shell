@@ -20,6 +20,8 @@ public class ShellTest {
 	static String subDirectoryPath = directoryPath + "/subDirectory";
 	static String testGrepPath = directoryPath + "/testGrep.txt";
 	static String abcPath = directoryPath + "/abc.txt";
+	static ByteArrayOutputStream capture;
+	static OutputStreamWriter writer;
 	
 	@Before
     public void setUp() throws IOException {
@@ -30,20 +32,24 @@ public class ShellTest {
         Files.createDirectory(subDirectory);
         
         //set up test files
-        FileWriter writer = new FileWriter(testGrepPath);
-        writer.write("This is a line containing the pattern.\nThis is a line that doesn't.");
-        writer.close();
+        FileWriter fileWriter = new FileWriter(testGrepPath);
+        fileWriter.write("This is a line containing the pattern.\nThis is a line that doesn't.");
+        fileWriter.close();
         
-        writer = new FileWriter(abcPath);
-        writer.write("AAA\nBBB\nCCC");
-        writer.close();
+        fileWriter = new FileWriter(abcPath);
+        fileWriter.write("AAA\nBBB\nCCC");
+        fileWriter.close();
         
         //set shell directory to test directory
         Shell.setCurrentDirectory(directory.toAbsolutePath().toString());
+        
+        //set up writer and capture objects to store of apps
+        capture = new ByteArrayOutputStream();
+    	writer = new OutputStreamWriter(capture);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
     	//delete test directory and all test files
         try {
             Path directory = Paths.get(directoryPath);
@@ -59,13 +65,15 @@ public class ShellTest {
         } catch (IOException e) {
             System.err.println("Failed to delete directory: " + e.getMessage());
         }
+       
+        //close writer and capture
+        writer.close();
+        capture.close();
     }
     
     @Test
     public void testLsNoArgs() throws IOException {
     	Application Ls = new Ls();
-    	ByteArrayOutputStream capture = new ByteArrayOutputStream();
-    	OutputStreamWriter writer = new OutputStreamWriter(capture);
     	Ls.exec(new ArrayList<String>(), "", writer);
     	
     	String output = capture.toString();
@@ -77,8 +85,6 @@ public class ShellTest {
     @Test
     public void testLsOneArgNoOutput() throws IOException {
     	Application Ls = new Ls();
-    	ByteArrayOutputStream capture = new ByteArrayOutputStream();
-    	OutputStreamWriter writer = new OutputStreamWriter(capture);
     	ArrayList<String> args = new ArrayList<>(Arrays.asList("subDirectory"));
     	Ls.exec(args, "", writer);
     	
@@ -90,15 +96,15 @@ public class ShellTest {
     
     @Test
     public void testLsTwoOrMoreArgs() throws IOException {
+    	//test with two args
     	Application Ls = new Ls();
-    	ByteArrayOutputStream capture = new ByteArrayOutputStream();
-    	OutputStreamWriter writer = new OutputStreamWriter(capture);
     	ArrayList<String> args = new ArrayList<>(Arrays.asList("subDirectory", "nonexistentDirectory"));
     	RuntimeException e = assertThrows(RuntimeException.class, () -> {
             Ls.exec(args, abcPath, writer);
         });
     	assertTrue(e.getMessage().equals("ls: too many arguments"));
     	
+    	//test with four args
     	ArrayList<String> args2 = new ArrayList<>(Arrays.asList("subDirectory", "nonexistentDirectory1",
     			"nonexistentDiretory2", "nonexistentDirectory3"));
     	e = assertThrows(RuntimeException.class, () -> {
@@ -110,8 +116,6 @@ public class ShellTest {
     @Test
     public void testLsNonexistentDirectory() throws IOException {
     	Application Ls = new Ls();
-    	ByteArrayOutputStream capture = new ByteArrayOutputStream();
-    	OutputStreamWriter writer = new OutputStreamWriter(capture);
     	ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentDirectory"));
     	RuntimeException e = assertThrows(RuntimeException.class, () -> {
             Ls.exec(args, abcPath, writer);
