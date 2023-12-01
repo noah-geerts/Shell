@@ -122,6 +122,74 @@ public class ShellTest {
         });
     	assertTrue(e.getMessage().equals("ls: no such directory"));
     }
-    
+	
+     @Test
+    public void testPwdValidExecution() throws IOException {
+        Application pwd = new Pwd();
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(capture);
+
+        pwd.exec(new ArrayList<>(), "", writer);
+        writer.flush();
+        writer.close();
+
+        String output = capture.toString();
+        String expected = Shell.getCurrentDirectory() + System.getProperty("line.separator");
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testCdValidExecution() throws IOException {
+        Application cd = new Cd();
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(capture);
+
+        cd.exec(new ArrayList<>(List.of("subDirectory")), "", writer);
+        writer.flush();
+        writer.close();
+
+        String output = capture.toString();
+        String expected = "";
+        assertEquals(expected, output);
+    }
+
+    @Test
+    public void testCdMissingArgument() throws IOException {
+        Application cd = new Cd();
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(capture);
+
+        RuntimeException e = assertThrows(RuntimeException.class, () -> {
+            cd.exec(new ArrayList<>(), "", writer);
+        });
+        assertTrue(e.getMessage().equals("cd: missing argument"));
+    }
+
+    @Test
+    public void testCdTooManyArguments() throws IOException {
+        Application cd = new Cd();
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(capture);
+
+        ArrayList<String> args = new ArrayList<>(List.of("dir1", "dir2"));
+        RuntimeException e = assertThrows(RuntimeException.class, () -> {
+            cd.exec(args, "", writer);
+        });
+        assertTrue(e.getMessage().equals("cd: too many arguments"));
+    }
+
+    @Test
+    public void testCdNonexistentDirectory() throws IOException {
+        Application cd = new Cd();
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(capture);
+
+        ArrayList<String> args = new ArrayList<>(List.of("nonexistentDirectory"));
+        RuntimeException e = assertThrows(RuntimeException.class, () -> {
+            cd.exec(args, "", writer);
+        });
+        assertTrue(e.getMessage().equals("cd: nonexistentDirectory is not an existing directory"));
+    }
+
    
 }
