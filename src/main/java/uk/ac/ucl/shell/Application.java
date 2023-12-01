@@ -3,6 +3,7 @@ package uk.ac.ucl.shell;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -332,12 +333,13 @@ class Grep implements Application{
     }
     private void readFromFile(OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + this.filename);
-        if (Files.exists(filePath)) {
-            try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
-                writeLines(reader, writer);
-            }
+        if(!Files.exists(filePath)) System.out.println("grep: file not found: " + this.filename);
+        else if(!Files.isReadable(filePath)) System.out.println("grep: access not permitted to file " + this.filename);
+        else if(!Files.isDirectory(filePath)) {
+        	BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8);
+        	writeLines(reader, writer);
         } else {
-            throw new RuntimeException("grep: file not found: " + this.filename);
+        	System.out.println("grep: is a directory: " + this.filename);
         }
     }
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
@@ -347,7 +349,7 @@ class Grep implements Application{
             if (matcher.find()) {
                 if (this.printFilename) {
                     writer.write(this.filename);
-                    writer.write(":");
+                    writer.write(": ");
                 }
                 writer.write(line);
                 writer.write(System.getProperty("line.separator"));
