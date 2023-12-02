@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public interface Application {
     void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
@@ -55,6 +56,7 @@ class Ls implements Application{
         try {
             File[] listOfFiles = currDir.listFiles();
             boolean atLeastOnePrinted = false;
+            assert listOfFiles != null;
             for (File file : listOfFiles) {
                 if (!file.getName().startsWith(".")) {
                     writer.write(file.getName());
@@ -390,7 +392,7 @@ class Cut implements Application {
         return (bound.isEmpty()) ? 1 : Integer.parseInt(bound);
     }
 
-    private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
+    private void processFile(String fileName, int start, int end, OutputStreamWriter writer) {
         Path filePath = Paths.get(fileName);
 
         if (!Files.isReadable(filePath) || Files.isDirectory(filePath)) {
@@ -419,10 +421,10 @@ class Cut implements Application {
             writer.flush();
         }
     }
-}*/
+}
 
 class Find implements Application {
-    public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
+    public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) {
         if (appArgs.size() < 2) {
             throw new RuntimeException("find: wrong number of arguments");
         }
@@ -430,13 +432,14 @@ class Find implements Application {
         String pattern = appArgs.get(1);
         findFiles(path, pattern, writer);
     }
-    private void findFiles(String path, String pattern, OutputStreamWriter writer) throws IOException {
-        try {
-            Files.walk(Paths.get(path))
+    private void findFiles(String path, String pattern, OutputStreamWriter writer) {
+        try (Stream<Path> filestream = Files.walk(Paths.get(path))){
+            filestream
                     .filter(Files::isRegularFile)
                     .filter(file -> file.getFileName().toString().matches(translatePattern(pattern)))
                     .forEach(file -> writeResult(file, writer));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new RuntimeException("find: error while searching for files");
         }
     }
@@ -525,14 +528,15 @@ class Sort implements Application {
         // Perform the sort operation
         sortLines(fileName, reverseOrder, input, writer);
     }
+
     private void sortLines(String fileName, boolean reverseOrder, String input, OutputStreamWriter writer) throws IOException {
         List<String> lines = readLines(fileName, input);
 
         // Perform the sort
         if (reverseOrder) {
-            Collections.sort(lines, Collections.reverseOrder());
+            lines.sort(Comparator.reverseOrder());
         } else {
-            Collections.sort(lines);
+            lines.sort(Comparator.naturalOrder());
         }
 
         // Write the sorted lines to the output
@@ -547,7 +551,7 @@ class Sort implements Application {
     private List<String> readLines(String fileName, String input) throws IOException {
         if (fileName == null) {
             // Read from the provided input string
-            return Arrays.asList(input.split(System.getProperty("line.separator")));
+            return new ArrayList<>(Arrays.asList(input.split(System.getProperty("line.separator"))));
         } else {
             // Read from the specified file
             Path filePath = Paths.get(fileName);
