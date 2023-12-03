@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -78,20 +79,20 @@ public class ShellTest {
     	
     	String output = capture.toString();
     	String expected = "abc.txt\tsubDirectory\ttestGrep.txt\t" + System.getProperty("line.separator");
-    	
-    	assertTrue(output.equals(expected));
+
+        assertEquals(output, expected);
     }
     
     @Test
     public void testLsOneArgNoOutput() throws IOException {
     	Application Ls = new Ls();
-    	ArrayList<String> args = new ArrayList<>(Arrays.asList("subDirectory"));
+    	ArrayList<String> args = new ArrayList<>(List.of("subDirectory"));
     	Ls.exec(args, "", writer);
     	
     	String output = capture.toString();
     	String expected = "";
-    	
-    	assertTrue(output.equals(expected));
+
+        assertEquals(output, expected);
     }
     
     @Test
@@ -102,7 +103,7 @@ public class ShellTest {
     	RuntimeException e = assertThrows(RuntimeException.class, () -> {
             Ls.exec(args, abcPath, writer);
         });
-    	assertTrue(e.getMessage().equals("ls: too many arguments"));
+        assertEquals("ls: too many arguments", e.getMessage());
     	
     	//test with four args
     	ArrayList<String> args2 = new ArrayList<>(Arrays.asList("subDirectory", "nonexistentDirectory1",
@@ -110,7 +111,7 @@ public class ShellTest {
     	e = assertThrows(RuntimeException.class, () -> {
             Ls.exec(args2, abcPath, writer);
         });
-    	assertTrue(e.getMessage().equals("ls: too many arguments"));
+        assertEquals("ls: too many arguments", e.getMessage());
     }
     
     @Test
@@ -120,7 +121,7 @@ public class ShellTest {
     	RuntimeException e = assertThrows(RuntimeException.class, () -> {
             Ls.exec(args, abcPath, writer);
         });
-    	assertTrue(e.getMessage().equals("ls: no such directory"));
+        assertEquals("ls: no such directory", e.getMessage());
     }
 	
      @Test
@@ -162,7 +163,7 @@ public class ShellTest {
         RuntimeException e = assertThrows(RuntimeException.class, () -> {
             cd.exec(new ArrayList<>(), "", writer);
         });
-        assertTrue(e.getMessage().equals("cd: missing argument"));
+        assertEquals("cd: missing argument", e.getMessage());
     }
 
     @Test
@@ -175,7 +176,7 @@ public class ShellTest {
         RuntimeException e = assertThrows(RuntimeException.class, () -> {
             cd.exec(args, "", writer);
         });
-        assertTrue(e.getMessage().equals("cd: too many arguments"));
+        assertEquals("cd: too many arguments", e.getMessage());
     }
 
     @Test
@@ -188,8 +189,70 @@ public class ShellTest {
         RuntimeException e = assertThrows(RuntimeException.class, () -> {
             cd.exec(args, "", writer);
         });
-        assertTrue(e.getMessage().equals("cd: nonexistentDirectory is not an existing directory"));
+        assertEquals("cd: nonexistentDirectory is not an existing directory", e.getMessage());
     }
 
-   
+    // for echo also need > text.txt
+    @Test
+    public void testEchoNoArgsNoInput() throws IOException {
+        Application Echo = new Echo();
+        Echo.exec(new ArrayList<String>(), "", writer);
+
+        String output = capture.toString();
+        String expected = "\n";
+
+        assertEquals(output, expected);
+    }
+    @Test
+    public void testEchoNoArgsSomeInput() throws IOException {
+        Application Echo = new Echo();
+        Echo.exec(new ArrayList<String>(), "input here\n more input here", writer);
+
+        String output = capture.toString();
+        String expected = "\n";
+
+        assertEquals(output, expected);
+    }
+    @Test
+    public void testEchoOneArg() throws IOException {
+        Application Echo = new Echo();
+        ArrayList<String> args = new ArrayList<>();
+        args.add("hello, world");
+        Echo.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "hello world\n";
+
+        assertEquals(output, expected);
+    }
+    @Test
+    public void testEchoSomeArgs() throws IOException {
+        Application Echo = new Echo();
+        ArrayList<String> args = new ArrayList<>();
+        args.add("Hello,");
+        args.add("world!");
+        Echo.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "Hello, world!\n";
+
+        assertEquals(output, expected);
+    }
+    @Test
+    public void testEchoVeryLargeArgs() throws IOException {
+        Application Echo = new Echo();
+        ArrayList<String> args = new ArrayList<>();
+        StringBuilder expected = new StringBuilder();
+        for (int i = 0; i<1000; i++)
+        {
+            args.add("world!");
+            expected.append("world! ");
+        }
+        args.add("world!");
+        expected.append("world!\n");
+        Echo.exec(args, "", writer);
+
+        String output = capture.toString();
+        assertEquals(output, expected.toString());
+    }
 }
