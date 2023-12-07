@@ -3,20 +3,34 @@ package uk.ac.ucl.shell;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 public interface Application {
+    /**
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
 }
 
 class Cd implements Application{
-
+    /**
+     * Does some argument input checking
+     * Takes in the directory name, changes current directory to the new name
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.isEmpty()) {
             throw new RuntimeException("cd: missing argument");
@@ -34,6 +48,14 @@ class Cd implements Application{
 }
 
 class Pwd implements Application{
+    /**
+     * Writes the name of the current directory to stdout
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		writer.write(Shell.getCurrentDirectory());
         writer.write(System.getProperty("line.separator"));
@@ -43,7 +65,16 @@ class Pwd implements Application{
 
 
 class Ls implements Application{
-
+    /**
+     * Checks the number of arguments for validity
+     * If a directory name is given, changes current directory to the new name
+     * Writes the list of files in the current directory to stdout
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		File currDir;
         if (appArgs.isEmpty()) {
@@ -56,6 +87,7 @@ class Ls implements Application{
         try {
             File[] listOfFiles = currDir.listFiles();
             boolean atLeastOnePrinted = false;
+            assert listOfFiles != null;
             for (File file : listOfFiles) {
                 if (!file.getName().startsWith(".")) {
                     writer.write(file.getName());
@@ -75,6 +107,17 @@ class Ls implements Application{
 }
 
 class Cat implements Application{
+    /**
+     * Does input sanitisation
+     * Arguments are a list of filenames
+     * Iterates through that list reading the files
+     * Then writes their contents to stdout
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.isEmpty() && input.isEmpty()) {
             throw new RuntimeException("cat: missing arguments / empty stdin");
@@ -108,7 +151,15 @@ class Cat implements Application{
 }
 
 class Echo implements Application{
-
+    /**
+     * Writes the arguments to stdout separated by spaces (" ")
+     * Then writes a "\n"
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         for (String arg : appArgs) {
             writer.write(arg);
@@ -123,11 +174,21 @@ class Echo implements Application{
 }
 
 class Head implements Application{
-    // in the original shell
-    // head can have the form: head -n num file; head file
-    // in real life:
-    // head -q file..; head -v file...; head -n num file; head -c num file; head file
+    /**
+     * default number of lines to write
+     */
     private int lineNumber = 10;
+    /**
+     * Checks for bad input (wrong number of args), throws a RuntimeException
+     * checks for stdin or filenames used
+     * checks for options used, and changes the line number if so
+     * calls the relevant reader method
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.isEmpty() && input.isEmpty()) {
             throw new RuntimeException("head: missing arguments");
@@ -176,13 +237,30 @@ class Head implements Application{
             throw new RuntimeException("head: invalid number of arguments");
         }
     }
-    // Can pass in an array instead of lineNumber to allow more options.
+
+    /**
+     * Reads from stdin, wraps the string in a reader
+     * passes to the writer method
+     *
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
             writeLines(reader, writer);
         }
     }
 
+    /**
+     * Checks the file exists
+     * if true: wraps the file in a reader and passes to the writer method
+     * if false: throws an RuntimeException
+     *
+     * @param fileName name of the file we are reading from
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
         if (Files.exists(filePath)) {
@@ -193,6 +271,14 @@ class Head implements Application{
             throw new RuntimeException("head: file not found: " + fileName);
         }
     }
+
+    /**
+     * Writes the first lineNumber of lines from the reader to stdout
+     *
+     * @param reader reader of info to write
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
         int counter = 0;
@@ -206,7 +292,21 @@ class Head implements Application{
 }
 
 class Tail implements Application{
+    /**
+     * default number of lines to write
+     */
     private int lineNumber = 10;
+    /**
+     * Checks for bad input (wrong number of args), throws a RuntimeException
+     * checks for stdin or filenames used
+     * checks for options used, and changes the line number if so
+     * calls the relevant reader method
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         // default number of lines is 10
         if (appArgs.isEmpty() && input.isEmpty()) {
@@ -256,12 +356,28 @@ class Tail implements Application{
             throw new RuntimeException("tail: invalid number of arguments");
         }
     }
+    /**
+     * Reads from stdin, wraps the string in a reader
+     * passes to the writer method
+     *
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
             writeLines(reader, writer);
         }
     }
-
+    /**
+     * Checks the file exists
+     * if true: wraps the file in a reader and passes to the writer method
+     * if false: throws an RuntimeException
+     *
+     * @param fileName name of the file we are reading from
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
         if (Files.exists(filePath)) {
@@ -272,6 +388,14 @@ class Tail implements Application{
             throw new RuntimeException("tail: file not found: " + fileName);
         }
     }
+    /**
+     * Stores all the lines from the reader
+     * Writes the lines from index = (length - lineNumber) to stdout
+     *
+     * @param reader reader of info to write
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
         ArrayList<String> storage = new ArrayList<>();
@@ -293,44 +417,77 @@ class Tail implements Application{
 }
 
 class Grep implements Application{
+    /**
+     * storing the pattern, filename and whether the filename should be printed
+     */
     private Pattern grepPattern;
     private String filename = "";
     private boolean printFilename = false;
-    private static final int MAX_FILES_LIMIT = 99;
+    /**
+     * Handles checking error cases
+     * Sets grepPattern var and throws an exception if not a valid pattern
+     * Reads from stdin or from file when appropriate
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.size() == 0) {
             throw new RuntimeException("grep: wrong number of arguments");
         }
-        this.grepPattern = Pattern.compile(appArgs.get(0));
-        int numOfFiles = appArgs.size() - 1;
-        if (numOfFiles == 0) {
-            if (input.isEmpty()) {
-                throw new RuntimeException("grep: empty stdin");
+        try {
+            this.grepPattern = Pattern.compile(appArgs.get(0));
+            int numOfFiles = appArgs.size() - 1;
+            if (numOfFiles == 0) {
+                if (input.isEmpty()) {
+                    throw new RuntimeException("grep: empty stdin");
+                }
+                else {
+                    readFromStdin(input, writer);
+                }
             }
-            else {
-                readFromStdin(input, writer);
-            }
-        }
-        else if (numOfFiles == 1) {
-            this.filename = appArgs.get(1);
-            readFromFile(writer);
-        }
-        // limit for performance/ display
-        else if (numOfFiles > 1 && numOfFiles < MAX_FILES_LIMIT) {
-            int i = 1;
-            this.printFilename = true;
-            while (i <= numOfFiles) {
-                this.filename = appArgs.get(i);
+            else if (numOfFiles == 1) {
+                this.filename = appArgs.get(1);
                 readFromFile(writer);
-                i+=1;
             }
+            else if (numOfFiles > 1) {
+                int i = 1;
+                this.printFilename = true;
+                while (i <= numOfFiles) {
+                    this.filename = appArgs.get(i);
+                    readFromFile(writer);
+                    i+=1;
+                }
+            }
+        }
+        catch (PatternSyntaxException e)
+        {
+            throw new RuntimeException("grep: invalid regular expression");
         }
 	}
+    /**
+     * Reads from stdin, wraps the string in a reader
+     * passes to the writer method
+     *
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
             writeLines(reader, writer);
         }
     }
+    /**
+     * Checks the file exists, gets fileName from private var
+     * if true: wraps the file in a reader and passes to the writer method
+     * if false: throws an RuntimeException
+     *
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void readFromFile(OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + this.filename);
         if(!Files.exists(filePath)) System.out.println("grep: file not found: " + this.filename);
@@ -342,6 +499,16 @@ class Grep implements Application{
         	System.out.println("grep: is a directory: " + this.filename);
         }
     }
+
+    /**
+     * Goes line by line from the reader checking if it matches the pattern
+     * if true: writes to stdout
+     * if false: does not write to it
+     *
+     * @param reader reader of info to write
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
         while ((line = reader.readLine()) != null) {
@@ -360,12 +527,21 @@ class Grep implements Application{
 }
 
 class Cut implements Application {
+    /**
+     * Checks for wrong argument size, can only be 2 or 3
+     * Checks if there is a file, if so stores the filename
+     * Splits up the ranges specified and processes them
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
-        if (appArgs.size() < 2) {
+        if (appArgs.size() < 2 || appArgs.size() > 3) {
             throw new RuntimeException("cut: wrong number of arguments");
         }
 
-        // Assuming "-b" is at index 0
         String option = appArgs.get(1);
         String fileName = (appArgs.size() > 2) ? appArgs.get(2) : null;
         String[] ranges = option.split(",");
@@ -375,23 +551,48 @@ class Cut implements Application {
         }
     }
 
+    /**
+     * Splits up the range by "-"
+     * If it is an open range (n-), end value is Integer.MAX_VALUE
+     * Else (n-m), end is m
+     *
+     * @param range the range of bytes to extract
+     * @param fileName the filename, can be null so stdin
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
         String[] bounds = range.split("-");
         int start = parseBound(bounds[0]);
         int end = (bounds.length > 1) ? parseBound(bounds[1]) : Integer.MAX_VALUE;
 
         if (fileName == null) {
-            // No file specified, read from stdin
             processLine(input, start, end, writer);
         } else {
             processFile(fileName, start, end, writer);
         }
     }
 
+    /**
+     * Helper method for processRange
+     *
+     * @param bound either "" or "int"
+     * @return returns 1 if it is empty, else parses the "int" to int
+     */
     private int parseBound(String bound) {
         return (bound.isEmpty()) ? 1 : Integer.parseInt(bound);
     }
 
+    /**
+     * Gets the file and reads it in, calling the processLine method on each line
+     *
+     * @param fileName filename
+     * @param start start of range of bytes included
+     * @param end end of range of bytes included
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(fileName);
 
@@ -409,6 +610,17 @@ class Cut implements Application {
         }
     }
 
+    /**
+     * Checks startIndex and endIndex are lower than lineLength
+     * Makes a substring from the range
+     * Writes the substring
+     *
+     * @param line either a line from the file or the shell stdin
+     * @param start start of range of bytes to include
+     * @param end end of range of bytes to include
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void processLine(String line, int start, int end, OutputStreamWriter writer) throws IOException {
         int lineLength = line.length();
         int startIndex = Math.min(start, lineLength);
@@ -424,6 +636,13 @@ class Cut implements Application {
 }
 
 class Find implements Application {
+    /**
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
             throw new RuntimeException("find: wrong number of arguments");
@@ -459,6 +678,13 @@ class Find implements Application {
 }
 
 class Uniq implements Application {
+    /**
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() > 2) {
             throw new RuntimeException("uniq: too many arguments");
@@ -471,7 +697,7 @@ class Uniq implements Application {
             fileName = appArgs.get(1);
         }
         // need to check for the new booleans here
-        else if (appArgs.size() == 1 && !ignoreCase) {
+        else if (!ignoreCase) {
             fileName = appArgs.get(0);
         }
         uniqLines(fileName, ignoreCase, input, writer);
@@ -519,6 +745,13 @@ class Uniq implements Application {
 
 
 class Sort implements Application {
+    /**
+     *
+     * @param appArgs the arguments input after a command separated by spaces into a list
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException throws an error if writer causes an error
+     */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         // Parse the options and file name
         boolean reverseOrder = appArgs.contains("-r");
@@ -527,29 +760,31 @@ class Sort implements Application {
         // Perform the sort operation
         sortLines(fileName, reverseOrder, input, writer);
     }
+    // this fucked for testing purposes
     private void sortLines(String fileName, boolean reverseOrder, String input, OutputStreamWriter writer) throws IOException {
         List<String> lines = readLines(fileName, input);
 
         // Perform the sort
-        if (reverseOrder) {
-            Collections.sort(lines, Collections.reverseOrder());
-        } else {
-            Collections.sort(lines);
-        }
 
+        lines.sort(Collections.reverseOrder());
+        for (String line : lines) {
+            writer.write(line);
+            writer.write(System.getProperty("line.separator"));
+        }
+        writer.flush();
+        Collections.sort(lines);
         // Write the sorted lines to the output
         for (String line : lines) {
             writer.write(line);
             writer.write(System.getProperty("line.separator"));
         }
-
         writer.flush();
     }
 
     private List<String> readLines(String fileName, String input) throws IOException {
         if (fileName == null) {
             // Read from the provided input string
-            return Arrays.asList(input.split(System.getProperty("line.separator")));
+            return new ArrayList<>(Arrays.asList(input.split(System.getProperty("line.separator"))));
         } else {
             // Read from the specified file
             Path filePath = Paths.get(fileName);
