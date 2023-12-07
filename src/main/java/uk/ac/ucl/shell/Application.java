@@ -651,6 +651,14 @@ class Find implements Application {
         String pattern = appArgs.get(1);
         findFiles(path, pattern, writer);
     }
+
+    /**
+     *
+     * @param path the path where to look for files
+     * @param pattern the pattern to find in the filenames
+     * @param writer shell stdout
+     * @throws IOException
+     */
     private void findFiles(String path, String pattern, OutputStreamWriter writer) throws IOException {
         try {
             Files.walk(Paths.get(path))
