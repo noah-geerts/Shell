@@ -255,4 +255,123 @@ public class ShellTest {
         String output = capture.toString();
         assertEquals(output, expected.toString());
     }
+	
+//for cat we may need multiple txt files?
+// singleLine.txt : "This is a single line."
+// multipleLines.txt : "Line 1\nLine 2\nLine 3"
+// mixedContent.txt : "This is a line.\nLine 2\nAnother line."
+    @Test
+    public void testCatEmptyFile() throws IOException {
+        Application cat = new Cat();
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("emptyFile.txt"));
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "";  
+
+        assertEquals(output, expected);
+    }
+
+    @Test
+    public void testCatSingleLine() throws IOException {
+        Application cat = new Cat();
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("singleLine.txt"));
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "This is a single line.";
+        assertEquals(output, expected);
+    }
+
+    @Test
+    public void testCatMultipleLines() throws IOException {
+        Application cat = new Cat();
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("multipleLines.txt"));
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "Line 1\nLine 2\nLine 3";
+        assertEquals(output, expected);
+    }
+
+    @Test
+    public void testCatMixedContent() throws IOException {
+        Application cat = new Cat();
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("mixedContent.txt"));
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        String expected = "This is a line.\nLine 2\nAnother line."; 
+
+        assertEquals(output, expected);
+    }   
+    @Test
+    public void testCatLargeFile() throws IOException {
+        Application cat = new Cat();
+        ArrayList<String> args = new ArrayList<>();
+        StringBuilder expected = new StringBuilder();
+        for (int i = 0; i < 1000; i++) {
+            String line = "This is line " + (i + 1) + ".";
+            args.add(line);
+            expected.append(line).append(System.getProperty("line.separator"));
+        }
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        assertEquals(output, expected.toString());
+    }
+
+    @Test
+    public void testCatFileAndStandardInput() throws IOException {
+        String standardInput = "This is input from standard input.";
+
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("singleLine.txt"));
+        // Read content from singleLine.txt and append standard input
+        String expectedOutput = "This is a single line.\n" + standardInput + System.getProperty("line.separator");
+
+        Application cat = new Cat();
+        cat.exec(args, standardInput, writer);
+
+        String output = capture.toString();
+        assertEquals(output, expectedOutput);
+    }
+
+    @Test
+    public void testCatReadFromMultipleFiles() throws IOException {
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("singleLine.txt", "multipleLines.txt"));
+        
+        // Read content from singleLine.txt and multipleLines.txt
+        String expectedOutput = "This is a single line.\nLine 1\nLine 2\nLine 3\n";
+
+        Application cat = new Cat();
+        cat.exec(args, "", writer);
+
+        String output = capture.toString();
+        assertEquals(output, expectedOutput);
+    }
+
+    @Test
+    public void testCatReadFromStandardInput() throws IOException {
+        String standardInput = "This is input from standard input.";
+        ArrayList<String> args = new ArrayList<>();
+        String expectedOutput = standardInput + System.getProperty("line.separator");
+
+        Application cat = new Cat();
+        cat.exec(args, standardInput, writer);
+
+        String output = capture.toString();
+        assertEquals(output, expectedOutput);
+    }
+
+    @Test
+    public void testCatReadFromNonexistentFile() throws IOException {
+        // Create arguments for Cat with a nonexistent file
+        ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentFile.txt"));
+        
+        RuntimeException e = assertThrows(RuntimeException.class, () -> {
+            Application cat = new Cat();
+            cat.exec(args, "", writer);
+        });
+        assertEquals("cat: file does not exist", e.getMessage());
+    }
 }
