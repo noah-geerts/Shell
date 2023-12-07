@@ -13,6 +13,7 @@ import java.util.regex.PatternSyntaxException;
 
 public interface Application {
     /**
+     * Executes a command
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input shell stdin
      * @param writer shell stdout
@@ -23,6 +24,7 @@ public interface Application {
 
 class Cd implements Application{
     /**
+     * Executes cd command
      * Does some argument input checking
      * Takes in the directory name, changes current directory to the new name
      *
@@ -49,6 +51,7 @@ class Cd implements Application{
 
 class Pwd implements Application{
     /**
+     * Executes pwd command
      * Writes the name of the current directory to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
@@ -66,6 +69,7 @@ class Pwd implements Application{
 
 class Ls implements Application{
     /**
+     * Executes ls command
      * Checks the number of arguments for validity
      * If a directory name is given, changes current directory to the new name
      * Writes the list of files in the current directory to stdout
@@ -108,7 +112,8 @@ class Ls implements Application{
 
 class Cat implements Application{
     /**
-     * Does input sanitisation
+     * Executes cat command
+     * Does input checking
      * Arguments are a list of filenames
      * Iterates through that list reading the files
      * Then writes their contents to stdout
@@ -152,6 +157,7 @@ class Cat implements Application{
 
 class Echo implements Application{
     /**
+     * Executes echo command
      * Writes the arguments to stdout separated by spaces (" ")
      * Then writes a "\n"
      *
@@ -179,6 +185,7 @@ class Head implements Application{
      */
     private int lineNumber = 10;
     /**
+     * Executes head command
      * Checks for bad input (wrong number of args), throws a RuntimeException
      * checks for stdin or filenames used
      * checks for options used, and changes the line number if so
@@ -244,7 +251,7 @@ class Head implements Application{
      *
      * @param input shell stdin
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
@@ -259,7 +266,7 @@ class Head implements Application{
      *
      * @param fileName name of the file we are reading from
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
@@ -277,7 +284,7 @@ class Head implements Application{
      *
      * @param reader reader of info to write
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if writer throws an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
@@ -297,6 +304,7 @@ class Tail implements Application{
      */
     private int lineNumber = 10;
     /**
+     * Executes tail command
      * Checks for bad input (wrong number of args), throws a RuntimeException
      * checks for stdin or filenames used
      * checks for options used, and changes the line number if so
@@ -362,7 +370,7 @@ class Tail implements Application{
      *
      * @param input shell stdin
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
@@ -376,7 +384,7 @@ class Tail implements Application{
      *
      * @param fileName name of the file we are reading from
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + fileName);
@@ -394,7 +402,7 @@ class Tail implements Application{
      *
      * @param reader reader of info to write
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader or writer throw an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
@@ -424,6 +432,7 @@ class Grep implements Application{
     private String filename = "";
     private boolean printFilename = false;
     /**
+     * Executes grep command
      * Handles checking error cases
      * Sets grepPattern var and throws an exception if not a valid pattern
      * Reads from stdin or from file when appropriate
@@ -473,7 +482,7 @@ class Grep implements Application{
      *
      * @param input shell stdin
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
         try (BufferedReader reader = new BufferedReader(new StringReader(input))) {
@@ -486,13 +495,15 @@ class Grep implements Application{
      * if false: throws an RuntimeException
      *
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if writer throws an error
      */
     private void readFromFile(OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + this.filename);
-        if(!Files.exists(filePath)) System.out.println("grep: file not found: " + this.filename);
-        else if(!Files.isReadable(filePath)) System.out.println("grep: access not permitted to file " + this.filename);
-        else if(!Files.isDirectory(filePath)) {
+        if(!Files.exists(filePath)) {
+            System.out.println("grep: file not found: " + this.filename);
+        } else if (!Files.isReadable(filePath)) {
+            System.out.println("grep: access not permitted to file " + this.filename);
+        } else if(!Files.isDirectory(filePath)) {
         	BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8);
         	writeLines(reader, writer);
         } else {
@@ -507,7 +518,7 @@ class Grep implements Application{
      *
      * @param reader reader of info to write
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader or writer throws an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
         String line;
@@ -528,6 +539,7 @@ class Grep implements Application{
 
 class Cut implements Application {
     /**
+     * Executes cut command
      * Checks for wrong argument size, can only be 2 or 3
      * Checks if there is a file, if so stores the filename
      * Splits up the ranges specified and processes them
@@ -560,7 +572,7 @@ class Cut implements Application {
      * @param fileName the filename, can be null so stdin
      * @param input shell stdin
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if processLine throws an error
      */
     private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
         String[] bounds = range.split("-");
@@ -591,7 +603,7 @@ class Cut implements Application {
      * @param start start of range of bytes included
      * @param end end of range of bytes included
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if reader throws an error
      */
     private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
         Path filePath = Paths.get(fileName);
@@ -605,8 +617,6 @@ class Cut implements Application {
             while ((line = reader.readLine()) != null) {
                 processLine(line, start, end, writer);
             }
-        } catch (IOException e) {
-            throw new RuntimeException("cut: cannot open " + fileName);
         }
     }
 
@@ -619,7 +629,7 @@ class Cut implements Application {
      * @param start start of range of bytes to include
      * @param end end of range of bytes to include
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if writer throws an error
      */
     private void processLine(String line, int start, int end, OutputStreamWriter writer) throws IOException {
         int lineLength = line.length();
@@ -637,11 +647,14 @@ class Cut implements Application {
 
 class Find implements Application {
     /**
+     * Executes find command
+     * Throws a RuntimeException for wrong args
+     * If path specified then use that Path, else current directory
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input shell stdin
      * @param writer shell stdout
-     * @throws IOException throws an error if writer causes an error
+     * @throws IOException throws an error if findFiles causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
@@ -653,11 +666,11 @@ class Find implements Application {
     }
 
     /**
-     *
+     * Finds the files
      * @param path the path where to look for files
      * @param pattern the pattern to find in the filenames
      * @param writer shell stdout
-     * @throws IOException
+     * @throws IOException if Files. walk throws an IOException
      */
     private void findFiles(String path, String pattern, OutputStreamWriter writer) throws IOException {
         try {
@@ -665,10 +678,20 @@ class Find implements Application {
                     .filter(Files::isRegularFile)
                     .filter(file -> file.getFileName().toString().matches(translatePattern(pattern)))
                     .forEach(file -> writeResult(file, writer));
-        } catch (IOException e) {
-            throw new RuntimeException("find: error while searching for files");
+        }
+        catch (SecurityException e)
+        {
+            throw new RuntimeException("find: not allowed access to starting file");
         }
     }
+
+    /**
+     * Takes in a Path to a file and the shell stdout.
+     * Finds the relative path of the file to the current directory and writes to output,
+     * followed by a line separator.
+     * @param file the Path object representing the file
+     * @param writer the OutputStreamWriter object representing the shell's standard output
+     */
     private void writeResult(Path file, OutputStreamWriter writer) {
         Path currentDirPath = Paths.get(Shell.getCurrentDirectory());
         String relativePath = currentDirPath.relativize(file).toString();
@@ -680,6 +703,13 @@ class Find implements Application {
             throw new RuntimeException("find: error while writing result");
         }
     }
+
+    /**
+     * Takes a string representing a wildcard file pattern and replaces all instances of the '*' wildcard with the regular expression .*
+     * Allows the findFiles method to use the matches method to efficiently find files that match the given pattern.
+     * @param pattern the wildcard file pattern to translate
+     * @return the translated pattern with wildcards replaced by regular expressions
+     */
     private String translatePattern(String pattern) {
         return pattern.replaceAll("\\*", ".*");
     }
@@ -687,6 +717,7 @@ class Find implements Application {
 
 class Uniq implements Application {
     /**
+     * Executes uniq command
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input shell stdin
@@ -711,7 +742,18 @@ class Uniq implements Application {
         uniqLines(fileName, ignoreCase, input, writer);
     }
 
-    // exists to check if filename is null then create readers
+    /**
+     * Checks if filename is null
+     * If true, gets stdin
+     * Else, gets the filename
+     * Creates readers
+     *
+     * @param filename filename or null if no filename in command
+     * @param ignoreCase bool, True if command contained option "-i"
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException if reader throws an error
+     */
     private void uniqLines(String filename, boolean ignoreCase, String input, OutputStreamWriter writer) throws IOException {
         if (filename == null) {
             BufferedReader inputReader = new BufferedReader(new StringReader(input));
@@ -732,7 +774,16 @@ class Uniq implements Application {
         }
     }
 
-    // compares lines to see if they are uniq then writes to a reader
+
+
+    /**
+     * Compares lines to see if they are unique then writes to a reader
+     *
+     * @param ignoreCase if "-i" option in command
+     * @param writer stdout
+     * @param reader stdin or file contents
+     * @throws IOException if writer throws an error
+     */
     private void uniqLineChecker(boolean ignoreCase, OutputStreamWriter writer, BufferedReader reader) throws IOException {
         String currentLine;
         String previousLine = null;
@@ -754,7 +805,7 @@ class Uniq implements Application {
 
 class Sort implements Application {
     /**
-     *
+     * Executes sort command
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input shell stdin
      * @param writer shell stdout
@@ -768,20 +819,23 @@ class Sort implements Application {
         // Perform the sort operation
         sortLines(fileName, reverseOrder, input, writer);
     }
-    // this fucked for testing purposes
+    /**
+     *
+     * @param fileName filename or null to call readLines
+     * @param reverseOrder if it needs to be reversed (-r)
+     * @param input shell stdin
+     * @param writer shell stdout
+     * @throws IOException if writer throws an error
+     */
     private void sortLines(String fileName, boolean reverseOrder, String input, OutputStreamWriter writer) throws IOException {
         List<String> lines = readLines(fileName, input);
 
-        // Perform the sort
-
-        lines.sort(Collections.reverseOrder());
-        for (String line : lines) {
-            writer.write(line);
-            writer.write(System.getProperty("line.separator"));
+        if (reverseOrder) {
+            lines.sort(Collections.reverseOrder());
         }
-        writer.flush();
-        Collections.sort(lines);
-        // Write the sorted lines to the output
+        else {
+            Collections.sort(lines);
+        }
         for (String line : lines) {
             writer.write(line);
             writer.write(System.getProperty("line.separator"));
@@ -789,6 +843,14 @@ class Sort implements Application {
         writer.flush();
     }
 
+    /**
+     * Reads lines from stdin or file and returns a list of lines
+     *
+     * @param fileName filename or null if stdin
+     * @param input shell stdin
+     * @return returns a list of lines
+     * @throws IOException if reader throws an error
+     */
     private List<String> readLines(String fileName, String input) throws IOException {
         if (fileName == null) {
             // Read from the provided input string
