@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -23,30 +24,8 @@ public class Eval implements CommandVisitor{
 		ArrayList<String> appArgs = new ArrayList<>(), inputFileNames = new ArrayList<>(), outputFileNames = new ArrayList<>();
 		String appName = patternMatcher(call.atomicCommand, appArgs, inputFileNames, outputFileNames);
         
-        //generate correct app with unsafe decorator if need be
-		Application app;
-        AppFactory a = new AppFactory();
-        if(appName.charAt(0) != '_') {
-        	app = a.generateApp(appName);
-        } else {
-        	appName = appName.substring(1, appName.length());
-        	app = new UnsafeDecorator(a.generateApp(appName));
-        }
-        
-        //initialize app's input and output as those of the Call object
-      	OutputStreamWriter appWriter = new OutputStreamWriter(call.getOutput());
-      	String appInput = call.getInput();
-       
-        //set app's output to the '>' redirection, given only one '>' was present
-        if(inputFileNames.size() > 1) {throw new IOException("Only one input redirection permitted");}
-        else if(inputFileNames.size() == 1) {appInput = getFileText(inputFileNames.get(0));}
-        
-        //set app's input to the '<' redirection, given only one '<' was present
-        if(outputFileNames.size() > 1) {throw new IOException("Only one output redirection permitted");}
-        if(outputFileNames.size() == 1) {appWriter = getOutputWriter(outputFileNames.get(0));}
-        
-        //execute app
-        app.exec(appArgs, appInput, appWriter);
+        //Convert the patternMatcher outputs into the app's arguments and run the app
+		runApp(appName, appArgs, inputFileNames, outputFileNames, call.getInput(), call.getOutput());
         
 	}
 	
@@ -162,7 +141,7 @@ public class Eval implements CommandVisitor{
                 
                 //perform globbing on the text
                 ArrayList<String> globbingResult = new ArrayList<String>();
-                Path dir = Paths.get("C:\\Users\\noahg");
+                Path dir = Paths.get(Shell.getCurrentDirectory());
                 DirectoryStream<Path> stream = Files.newDirectoryStream(dir, nonQuote);
                 for (Path entry : stream) {
                     globbingResult.add(entry.getFileName().toString());
@@ -189,5 +168,32 @@ public class Eval implements CommandVisitor{
         //first token is the app name, and the rest rest are app arguments
         appArgs.addAll(tokens.subList(1, tokens.size())); 
         return tokens.get(0);   
+	}
+	
+	public static void runApp(String appName, ArrayList<String> appArgs, ArrayList<String> inputFileNames, ArrayList<String> outputFileNames, String callInput, OutputStream callOutput) throws IOException {
+		//generate correct app with unsafe decorator if need be
+		Application app;
+        AppFactory a = new AppFactory();
+        if(appName.charAt(0) != '_') {
+        	app = a.generateApp(appName);
+        } else {
+        	appName = appName.substring(1, appName.length());
+        	app = new UnsafeDecorator(a.generateApp(appName));
+        }
+        
+        //initialize app's input and output as those of the Call object
+      	OutputStreamWriter appWriter = new OutputStreamWriter(callOutput);
+      	String appInput = callInput;
+       
+        //set app's output to the '>' redirection, given only one '>' was present
+        if(inputFileNames.size() > 1) {throw new RuntimeException("Only one input redirection permitted");}
+        else if(inputFileNames.size() == 1) {appInput = getFileText(inputFileNames.get(0));}
+        
+        //set app's input to the '<' redirection, given only one '<' was present
+        if(outputFileNames.size() > 1) {throw new RuntimeException("Only one output redirection permitted");}
+        if(outputFileNames.size() == 1) {appWriter = getOutputWriter(outputFileNames.get(0));}
+        
+        //execute app
+        app.exec(appArgs, appInput, appWriter);
 	}
 }

@@ -150,6 +150,7 @@ class Cat implements Application{
                 writer.write(input);
                 writer.write(System.getProperty("line.separator"));
                 writer.flush();
+                writer.close();
             }
         }
     }

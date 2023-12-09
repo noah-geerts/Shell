@@ -1,8 +1,8 @@
 package uk.ac.ucl.shell;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -24,7 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ShellTest {
+public class AppsTest {
 
     static String directoryPath = "testDirectory";
     static String subDirectoryEmpty = directoryPath + "/subDirectoryempty";
@@ -111,6 +111,9 @@ public class ShellTest {
         // close writer and capture
         writer.close();
         capture.close();
+        
+        //set shell directory back to original
+        Shell.setCurrentDirectory(System.getProperty("user.dir"));
     }
 
 	    /**

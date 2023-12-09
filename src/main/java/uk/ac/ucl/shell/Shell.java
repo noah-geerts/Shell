@@ -30,7 +30,7 @@ public class Shell {
                 System.out.println("COMP0010 shell: " + args[0] + ": unexpected argument");
             }
             try {
-                eval(args[1], System.out);
+                eval(args[1]);
             } catch (Exception e) {
                 System.out.println("COMP0010 shell: " + e.getMessage());
             }
@@ -42,7 +42,7 @@ public class Shell {
                     System.out.print(prompt);
                     try {
                         String cmdline = input.nextLine();
-                        eval(cmdline, System.out);
+                        eval(cmdline);
                     } catch (Exception e) {
                         System.out.println("COMP0010 shell: " + e.getMessage());
                     }
@@ -53,16 +53,19 @@ public class Shell {
         }
     }
     
-    public static void eval(String cmdline, OutputStream output) throws IOException {
-    	//create a new call object for the atomic command cmdline, 
+    public static void eval(String cmdline) throws IOException {
+    	
+    	//parse the input into a tree using ANTLR4 generated classes
     	CharStream parserInput = CharStreams.fromString(cmdline); 
         ShellGrammarLexer lexer = new ShellGrammarLexer(parserInput);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);        
         ShellGrammarParser parser = new ShellGrammarParser(tokenStream);
         ParseTree tree = parser.root();
         
+        //convert it into a Command tree using CommandConverter
         Command c = tree.accept(new CommandConverter());
         
+        //run the Command tree
         c.accept(new Eval());
     }
 
