@@ -4,14 +4,17 @@ grammar ShellGrammar;
  * Parser Rules
  */
 
-command : atomicCommand (';' atomicCommand)*;
+root : seq | command;
 
-atomicCommand : (NONSPECIAL | DOUBLEQUOTED | SINGLEQUOTED)+;
+seq	: 	left = command ';' right = command	#seq1
+		| left = seq ';' right = command	#seq2;
+
+command  : left=command '|' right=command   #pipeCommand
+         | (NONSPECIAL)+					#atomicCommand;
+
 
 /*
  * Lexer Rules
  */
 
-NONSPECIAL : ~['";]+;
-DOUBLEQUOTED : '"' (~'"')* '"';
-SINGLEQUOTED : '\'' (~'\'')* '\'';
+NONSPECIAL : ~[;|]+;
