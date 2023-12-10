@@ -1,6 +1,6 @@
 package uk.ac.ucl.shell;
 
-import static org.junit.Assert.assertThrows;
+
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -11,24 +11,27 @@ public class AppFactoryTest {
 	
 	@Test
 	public void testGenerateAppEmptyNullString() {
-		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> {
+		try {
 			a.generateApp(null);
-        });
-		assertTrue(e.getMessage().equals("Application name cannot be null or empty"));
+		} catch(IllegalArgumentException e) {
+			assertTrue(e.getMessage().equals("Application name cannot be null or empty"));
+		}
 		
-		IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class, () -> {
+		try {
 			a.generateApp("");
-        });
-		assertTrue(e2.getMessage().equals("Application name cannot be null or empty"));
+		} catch(IllegalArgumentException e) {
+        	assertTrue(e.getMessage().equals("Application name cannot be null or empty"));
+        }
 		
 	}
 	
 	@Test
 	public void testGenerateAppNonexistentAppName() {
-		RuntimeException e = assertThrows(RuntimeException.class, () -> {
+		try {
 			a.generateApp("nonexistentAppName");
-        });
-		assertTrue(e.getMessage().equals("nonexistentAppName: unknown application"));
+		} catch(RuntimeException e) {
+			assertTrue(e.getMessage().equals("nonexistentAppName: unknown application"));
+		}
 	}
 	
 	@Test

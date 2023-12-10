@@ -1,17 +1,12 @@
 package uk.ac.ucl.shell;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,27 +73,34 @@ public class EvalTest {
     ///////////////////////////
     
     @Test
-    public void testGetFileTextIsDirectory() {
-    	FileNotFoundException e = assertThrows(FileNotFoundException.class, () -> {
+    public void testGetFileTextIsDirectory() throws IOException {
+    	try {
 			Eval.getFileText("subDirectory");
-        });
-    	assertTrue(e.getMessage().equals("Input file may not be a directory"));
+			fail("No exception thrown");
+        } catch(FileNotFoundException e) {
+        	assertTrue(e.getMessage().equals("Input file may not be a directory"));
+        }
     }
     
     @Test
-    public void testGetFileTextFileNotExist() {
-    	FileNotFoundException e = assertThrows(FileNotFoundException.class, () -> {
-			Eval.getFileText("nonexistent.txt");
-        });
-    	assertTrue(e.getMessage().equals("File nonexistent.txt does not exist"));
+    public void testGetFileTextFileNotExist() throws IOException {
+    	try {
+    		Eval.getFileText("nonexistent.txt");
+			fail("No exception thrown");
+        } catch(FileNotFoundException e) {
+        	assertTrue(e.getMessage().equals("File nonexistent.txt does not exist"));
+        }
     }
     
     @Test
-    public void testGetOutputWriterIsDirectory() {
-    	FileNotFoundException e = assertThrows(FileNotFoundException.class, () -> {
-			Eval.getOutputWriter("subDirectory");
-        });
-    	assertTrue(e.getMessage().equals("Output file may not be a directory"));
+    public void testGetOutputWriterIsDirectory() throws IOException {
+    	try {
+    		Eval.getOutputWriter("subDirectory");
+			fail("No exception thrown");
+        } catch(FileNotFoundException e) {
+        	assertTrue(e.getMessage().equals("Output file may not be a directory"));
+        }
+    	
     }
 	
 	
@@ -190,10 +192,13 @@ public class EvalTest {
 		ArrayList<String> inputFileNames = new ArrayList<String>();
 		ArrayList<String> outputFileNames = new ArrayList<String>();
 		
-		RuntimeException e = assertThrows(RuntimeException.class, () -> {
-			String appName = Eval.patternMatcher(atomicCommand, appArgs, inputFileNames, outputFileNames);
-        });
-        assertEquals("Command: '' is invalid", e.getMessage());
+		
+		try {
+			Eval.patternMatcher(atomicCommand, appArgs, inputFileNames, outputFileNames);
+			fail("No exception thrown");
+        } catch(RuntimeException e) {
+        	assertTrue("Command: '' is invalid".equals(e.getMessage()));
+        }
 	}
 	
 	@Test
@@ -301,10 +306,12 @@ public class EvalTest {
 		String appInput = "";
 		ByteArrayOutputStream appOutput = new ByteArrayOutputStream();
 		
-		RuntimeException e = assertThrows(RuntimeException.class, () -> {
+		try {
 			Eval.runApp(appName, AppArgs, inputFileNames, outputFileNames, appInput, appOutput);
-        });
-		assertTrue(e.getMessage().equals("Only one input redirection permitted"));
+			fail("No exception thrown");
+        } catch(RuntimeException e) {
+        	assertTrue(e.getMessage().equals("Only one input redirection permitted"));
+        }
 	}
 	
 	@Test
@@ -316,10 +323,12 @@ public class EvalTest {
 		String appInput = "";
 		ByteArrayOutputStream appOutput = new ByteArrayOutputStream();
 		
-		RuntimeException e = assertThrows(RuntimeException.class, () -> {
+		try {
 			Eval.runApp(appName, AppArgs, inputFileNames, outputFileNames, appInput, appOutput);
-        });
-		assertTrue(e.getMessage().equals("Only one output redirection permitted"));
+			fail("No exception thrown");
+        } catch(RuntimeException e) {
+        	assertTrue(e.getMessage().equals("Only one output redirection permitted"));
+        }
 	}
 	
 	
