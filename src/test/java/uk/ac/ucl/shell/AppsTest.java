@@ -326,10 +326,6 @@ public class ShellTest {
 		assertEquals(expected.toString(), output);
 	}
 
-	//for cat we may need multiple txt files?
-// singleLine.txt : "This is a single line."
-// multipleLines.txt : "Line 1"+System.getProperty("line.separator")+"Line 2"+System.getProperty("line.separator")+"Line 3"
-// mixedContent.txt : "This is a line."+System.getProperty("line.separator")+"Line 2"+System.getProperty("line.separator")+"Another line."
 	@Test
 	public void testCatEmptyFile() throws IOException {
 		Application cat = new Cat();
