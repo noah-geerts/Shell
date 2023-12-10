@@ -1,13 +1,15 @@
 package uk.ac.ucl.shell;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Scanner;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+/**
+ * This class represents a shell application that interprets and executes user inputs
+ */
 public class Shell {
 
     private static String currentDirectory = System.getProperty("user.dir");
@@ -20,6 +22,11 @@ public class Shell {
     	return currentDirectory;
     }
 
+    /**
+     * The main method to run the shell application. Can be run as a single command or in interactive mode.
+     * Catches exceptions thrown during command execution and prints them to standard output rather than terminating the program.
+     * @param args The command-line arguments.
+     */
     public static void main(String[] args) {
         if (args.length > 0) {
             if (args.length != 2) {
@@ -53,6 +60,11 @@ public class Shell {
         }
     }
     
+    /**
+     * Evaluates a command line input by parsing it into a tree, converting it into a Command tree, and running the Command tree.
+     * @param cmdline The command line input to evaluate.
+     * @throws IOException If an I/O error occurs during command evaluation.
+     */
     public static void eval(String cmdline) throws IOException {
     	
     	//parse the input into a tree using ANTLR4 generated classes

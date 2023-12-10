@@ -15,41 +15,57 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/**
+ * The `Eval` class is the concrete implementation of `CommandConverter`.
+ * It defines the functionality of `Command` objects when they are visited.
+ */
 public class Eval implements CommandVisitor{
-
 	
+	/**
+     * Visits a Call command, splits the atomic command into its components and runs the app.
+     * @param call The Call command to be visited.
+     * @throws IOException If an I/O error occurs during execution.
+     */
 	public void visit(Call call) throws IOException {
 		//Split atomic command into its app name, arguments, input files, and output files, 
 		ArrayList<String> appArgs = new ArrayList<>(), inputFileNames = new ArrayList<>(), outputFileNames = new ArrayList<>();
-		String appName = patternMatcher(call.atomicCommand, appArgs, inputFileNames, outputFileNames);
+		String appName = patternMatcher(call.getAtomicCommand(), appArgs, inputFileNames, outputFileNames);
         
         //Convert the patternMatcher outputs into the app's arguments and run the app
 		runApp(appName, appArgs, inputFileNames, outputFileNames, call.getInput(), call.getOutput());
         
 	}
 	
-	
+	/**
+     * Visits a Pipe command, executes the left command, passes its output to the right command,
+     * executes the right command, and passes its output to the Pipe command's output stream.
+     * @param pipe The Pipe command to be visited.
+     * @throws IOException If an I/O error occurs during execution.
+     */
 	public void visit(Pipe pipe) throws IOException {
 		//run the left Command while storing its output in a byte stream
 		ByteArrayOutputStream leftOutput = new ByteArrayOutputStream();
-		pipe.left.setOutput(leftOutput);
-		pipe.left.accept(this);
+		pipe.getLeft().setOutput(leftOutput);
+		pipe.getLeft().accept(this);
 		
 		//convert the byte stream to a string and set it as input of the right Command
 		String leftOutString = leftOutput.toString();
-		pipe.right.setInput(leftOutString);
+		pipe.getRight().setInput(leftOutString);
 		
 		//set the output of the right Command to that of the pipe object, and run the right Command
-		pipe.right.setOutput(pipe.getOutput());
-		pipe.right.accept(this);
+		pipe.getRight().setOutput(pipe.getOutput());
+		pipe.getRight().accept(this);
 	}
 	
-	
+	/**
+     * Visits a Seq command, executes the left command, then executes the right command.
+     * @param seq The Seq command to be visited.
+     * @throws IOException If an I/O error occurs during execution.
+     */
 	public void visit(Seq seq) throws IOException {
 		//run the left Command, then the right
-		seq.left.accept(this);
-		seq.right.accept(this);
+		seq.getLeft().accept(this);
+		seq.getRight().accept(this);
 	}
 	
 	
@@ -61,7 +77,13 @@ public class Eval implements CommandVisitor{
 	
 	
 	
-
+	/**
+     * Retrieves the text content from a file.
+     * @param fileName The name of the file in the Shell's current directory.
+     * @return The text content of the file.
+     * @throws IOException If an I/O error occurs while reading the file.
+     * @throws FileNotFoundException if the file is a directory or does not exist.
+     */
 	public static String getFileText(String fileName) throws IOException {
 		File f = new File(Shell.getCurrentDirectory() + "\\" + fileName);
 		
@@ -77,7 +99,13 @@ public class Eval implements CommandVisitor{
 		return content;
 	}
 	
-	
+	/**
+     * Retrieves an OutputStreamWriter for writing to a file, creating the file if it does not already exist.
+     * @param fileName The name of the file.
+     * @return The OutputStreamWriter for the file.
+     * @throws IOException If an I/O error occurs while accessing the file.
+     * @throws FileNotFoundException if the file is a directory.
+     */
 	public static OutputStreamWriter getOutputWriter(String fileName) throws IOException {
 		File f = new File(Shell.getCurrentDirectory() + "\\" + fileName);
 		
@@ -92,6 +120,16 @@ public class Eval implements CommandVisitor{
 		return fileWriter;	
 	}
 	
+	/**
+     * Parses the atomic command and extracts application name, arguments, input and output file names.
+     * @param atomicCommand The atomic command to parse.
+     * @param appArgs The list to store application arguments.
+     * @param inputFileNames The list to store input file names.
+     * @param outputFileNames The list to store output file names.
+     * @return The name of the application.
+     * @throws IOException If an I/O error occurs while processing the command.
+     * @throws RuntimeException if no tokens are found while processing the command.
+     */
 	public static String patternMatcher(String atomicCommand, ArrayList<String> appArgs, ArrayList<String> inputFileNames, ArrayList<String> outputFileNames) throws IOException {
 		//define patterns to find in atomicCommand and create matcher
 		String patterns = "[^\\s\"'><`]+|\"([^\"]*)\"|'([^']*)'|`([^`]*)`|(<)|(>)|(>)";
@@ -170,6 +208,18 @@ public class Eval implements CommandVisitor{
         return tokens.get(0);   
 	}
 	
+	/**
+     * Runs an application of the given name with provided arguments, input files and output files.
+     * Prioritizes using input and output files as I/O, unless there are none, in which case the Call command's I/O are used instead.
+     * @param appName The name of the application to run.
+     * @param appArgs The arguments for the application.
+     * @param inputFileNames The input file names for the application.
+     * @param outputFileNames The output file names for the application.
+     * @param callInput The input for the command.
+     * @param callOutput The output stream for the command.
+     * @throws IOException If an I/O error occurs during application execution.
+     * @throws RuntimeException if more than one I/O files are specified.
+     */
 	public static void runApp(String appName, ArrayList<String> appArgs, ArrayList<String> inputFileNames, ArrayList<String> outputFileNames, String callInput, OutputStream callOutput) throws IOException {
 		//generate correct app with unsafe decorator if need be
 		Application app;

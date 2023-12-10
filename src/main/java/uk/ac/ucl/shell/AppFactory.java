@@ -1,7 +1,16 @@
 package uk.ac.ucl.shell;
-
+/**
+ * Factory class used to generate Application objects
+ */
 public class AppFactory {
 
+	/**
+	 * generates an Application object corresponding to the name input
+	 * @param name The name of the desired Application
+	 * @return The generated Application object
+	 * @throws IllegalArgumentException if the name is null or empty
+	 * @throws RuntimeException if there is no Application with the given name
+	 */
 	public Application generateApp(String name) {
 		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Application name cannot be null or empty");

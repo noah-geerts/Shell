@@ -11,12 +11,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * The `Application` interface defines the shared functionality needed to execute shell applications.
+ * Each shell application supported by this shell program will be a class implementing `Application`.
+ * All shell applications are present in this file as default visibility classes.
+ */
 public interface Application {
     /**
      * Executes a command
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
     void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException;
@@ -29,8 +34,8 @@ class Cd implements Application{
      * Takes in the directory name, changes current directory to the new name
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -55,8 +60,8 @@ class Pwd implements Application{
      * Writes the name of the current directory to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -75,8 +80,8 @@ class Ls implements Application{
      * Writes the list of files in the current directory to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -119,8 +124,8 @@ class Cat implements Application{
      * Then writes their contents to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -163,8 +168,8 @@ class Echo implements Application{
      * Then writes a "\n"
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -193,8 +198,8 @@ class Head implements Application{
      * calls the relevant reader method
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -250,8 +255,8 @@ class Head implements Application{
      * Reads from stdin, wraps the string in a reader
      * passes to the writer method
      *
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
@@ -266,7 +271,7 @@ class Head implements Application{
      * if false: throws an RuntimeException
      *
      * @param fileName name of the file we are reading from
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
@@ -284,7 +289,7 @@ class Head implements Application{
      * Writes the first lineNumber of lines from the reader to stdout
      *
      * @param reader reader of info to write
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if writer throws an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
@@ -312,8 +317,8 @@ class Tail implements Application{
      * calls the relevant reader method
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -369,8 +374,8 @@ class Tail implements Application{
      * Reads from stdin, wraps the string in a reader
      * passes to the writer method
      *
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
@@ -384,7 +389,7 @@ class Tail implements Application{
      * if false: throws an RuntimeException
      *
      * @param fileName name of the file we are reading from
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void readFromFile(String fileName, OutputStreamWriter writer) throws IOException {
@@ -402,7 +407,7 @@ class Tail implements Application{
      * Writes the lines from index = (length - lineNumber) to stdout
      *
      * @param reader reader of info to write
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader or writer throw an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
@@ -439,8 +444,8 @@ class Grep implements Application{
      * Reads from stdin or from file when appropriate
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -481,8 +486,8 @@ class Grep implements Application{
      * Reads from stdin, wraps the string in a reader
      * passes to the writer method
      *
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void readFromStdin(String input,OutputStreamWriter writer) throws IOException {
@@ -495,7 +500,7 @@ class Grep implements Application{
      * if true: wraps the file in a reader and passes to the writer method
      * if false: throws an RuntimeException
      *
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if writer throws an error
      */
     private void readFromFile(OutputStreamWriter writer) throws IOException {
@@ -518,7 +523,7 @@ class Grep implements Application{
      * if false: does not write to it
      *
      * @param reader reader of info to write
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader or writer throws an error
      */
     private void writeLines(BufferedReader reader, OutputStreamWriter writer) throws IOException {
@@ -546,8 +551,8 @@ class Cut implements Application {
      * Splits up the ranges specified and processes them
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -571,8 +576,8 @@ class Cut implements Application {
      *
      * @param range the range of bytes to extract
      * @param fileName the filename, can be null so stdin
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if processLine throws an error
      */
     private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
@@ -603,7 +608,7 @@ class Cut implements Application {
      * @param fileName filename
      * @param start start of range of bytes included
      * @param end end of range of bytes included
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void processFile(String fileName, int start, int end, OutputStreamWriter writer) throws IOException {
@@ -629,7 +634,7 @@ class Cut implements Application {
      * @param line either a line from the file or the shell stdin
      * @param start start of range of bytes to include
      * @param end end of range of bytes to include
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if writer throws an error
      */
     private void processLine(String line, int start, int end, OutputStreamWriter writer) throws IOException {
@@ -653,8 +658,8 @@ class Find implements Application {
      * If path specified then use that Path, else current directory
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if findFiles causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -670,7 +675,7 @@ class Find implements Application {
      * Finds the files
      * @param path the path where to look for files
      * @param pattern the pattern to find in the filenames
-     * @param writer shell stdout
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if Files. walk throws an IOException
      */
     private void findFiles(String path, String pattern, OutputStreamWriter writer) throws IOException {
@@ -721,8 +726,8 @@ class Uniq implements Application {
      * Executes uniq command
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -751,8 +756,8 @@ class Uniq implements Application {
      *
      * @param filename filename or null if no filename in command
      * @param ignoreCase bool, True if command contained option "-i"
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if reader throws an error
      */
     private void uniqLines(String filename, boolean ignoreCase, String input, OutputStreamWriter writer) throws IOException {
@@ -808,8 +813,8 @@ class Sort implements Application {
     /**
      * Executes sort command
      * @param appArgs the arguments input after a command separated by spaces into a list
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException throws an error if writer causes an error
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
@@ -824,8 +829,8 @@ class Sort implements Application {
      *
      * @param fileName filename or null to call readLines
      * @param reverseOrder if it needs to be reversed (-r)
-     * @param input shell stdin
-     * @param writer shell stdout
+     * @param input string for Application
+     * @param OutputStreamWriter that Application output is written to
      * @throws IOException if writer throws an error
      */
     private void sortLines(String fileName, boolean reverseOrder, String input, OutputStreamWriter writer) throws IOException {
@@ -848,7 +853,7 @@ class Sort implements Application {
      * Reads lines from stdin or file and returns a list of lines
      *
      * @param fileName filename or null if stdin
-     * @param input shell stdin
+     * @param input string for Application
      * @return returns a list of lines
      * @throws IOException if reader throws an error
      */
