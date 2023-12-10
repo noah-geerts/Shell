@@ -274,7 +274,7 @@ public class ShellTest {
         Echo.exec(new ArrayList<String>(), "", writer);
 
         String output = capture.toString();
-        String expected = "\n";
+        String expected = System.lineSeparator();
 
         assertEquals(output, expected);
     }
@@ -282,10 +282,10 @@ public class ShellTest {
     @Test
     public void testEchoNoArgsSomeInput() throws IOException {
         Application Echo = new Echo();
-        Echo.exec(new ArrayList<String>(), "input here\n more input here", writer);
+        Echo.exec(new ArrayList<String>(), "input here"+System.lineSeparator()+" more input here", writer);
 
         String output = capture.toString();
-        String expected = "\n";
+        String expected = System.lineSeparator();
 
         assertEquals(output, expected);
     }
@@ -298,7 +298,7 @@ public class ShellTest {
         Echo.exec(args, "", writer);
 
         String output = capture.toString();
-        String expected = "hello, world \n";
+        String expected = "hello, world "+System.lineSeparator();
 
         assertEquals(expected, output);
     }
@@ -312,7 +312,7 @@ public class ShellTest {
         Echo.exec(args, "", writer);
 
         String output = capture.toString();
-        String expected = "Hello, world! \n";
+        String expected = "Hello, world! "+System.lineSeparator();
 
         assertEquals(expected, output);
     }
@@ -327,7 +327,7 @@ public class ShellTest {
             expected.append("world! ");
         }
         args.add("world!");
-        expected.append("world! \n");
+        expected.append("world! "+System.lineSeparator());
         Echo.exec(args, "", writer);
 
         String output = capture.toString();
