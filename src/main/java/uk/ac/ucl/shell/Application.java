@@ -40,14 +40,14 @@ class Cd implements Application{
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.isEmpty()) {
-            throw new RuntimeException("cd: missing argument");
+            throw new CdException("missing argument");
         } else if (appArgs.size() > 1) {
-            throw new RuntimeException("cd: too many arguments");
+            throw new CdException("too many arguments");
         }
         String dirString = appArgs.get(0);
         File dir = new File(Shell.getCurrentDirectory(), dirString);
         if (!dir.exists() || !dir.isDirectory()) {
-            throw new RuntimeException("cd: " + dirString + " is not an existing directory");
+            throw new CdException(dirString + " is not an existing directory");
         }
         Shell.setCurrentDirectory(dir.getCanonicalPath());
 	}
@@ -91,7 +91,7 @@ class Ls implements Application{
         } else if (appArgs.size() == 1) {
             currDir = new File(Shell.getCurrentDirectory() + "/" + appArgs.get(0));
         } else {
-            throw new RuntimeException("ls: too many arguments");
+            throw new LsException("too many arguments");
         }
         try {
             File[] listOfFiles = currDir.listFiles();
@@ -110,7 +110,7 @@ class Ls implements Application{
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            throw new RuntimeException("ls: no such directory");
+            throw new LsException("no such directory");
         }
 	}
 }
@@ -130,7 +130,7 @@ class Cat implements Application{
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.isEmpty() && input.isEmpty()) {
-            throw new RuntimeException("cat: missing arguments / empty stdin");
+            throw new CatException("missing arguments / empty stdin");
         } else {
             for (String arg : appArgs) {
                 Charset encoding = StandardCharsets.UTF_8;
@@ -145,10 +145,10 @@ class Cat implements Application{
                             writer.flush();
                         }
                     } catch (IOException e) {
-                        throw new RuntimeException("cat: cannot open " + arg);
+                        throw new CatException("cannot open " + arg);
                     }
                 } else {
-                    throw new RuntimeException("cat: file does not exist");
+                    throw new CatException("file does not exist");
                 }
             }
             if (!input.isEmpty()) {
@@ -192,7 +192,7 @@ class Head implements Application{
     private int lineNumber = 10;
     /**
      * Executes head command
-     * Checks for bad input (wrong number of args), throws a RuntimeException
+     * Checks for bad input (wrong number of args), throws a HeadException
      * checks for stdin or filenames used
      * checks for options used, and changes the line number if so
      * calls the relevant reader method
@@ -204,7 +204,7 @@ class Head implements Application{
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.isEmpty() && input.isEmpty()) {
-            throw new RuntimeException("head: missing arguments");
+            throw new HeadException("missing arguments");
         }
         if (appArgs.isEmpty()) {
             readFromStdin(input, writer);
@@ -217,7 +217,7 @@ class Head implements Application{
         {
             String option = appArgs.get(0);
             if (!option.equals("-n")) {
-                throw new RuntimeException("head: invalid option");
+                throw new HeadException("invalid option");
             }
             else {
                 try {
@@ -225,7 +225,7 @@ class Head implements Application{
                     readFromStdin(input, writer);
                 }
                 catch (NumberFormatException e) {
-                    throw new RuntimeException("head: second arg is not an integer");
+                    throw new HeadException("second arg is not an integer");
                 }
 
             }
@@ -233,7 +233,7 @@ class Head implements Application{
         else if (appArgs.size() == 3){
             String option = appArgs.get(0);
             if (!option.equals("-n")) {
-                throw new RuntimeException("head: invalid option");
+                throw new HeadException("invalid option");
             }
             else {
                 try {
@@ -242,12 +242,12 @@ class Head implements Application{
                         readFromFile(fileName, writer);
                 }
                 catch (NumberFormatException e) {
-                    throw new RuntimeException("head: second arg is not an integer");
+                    throw new HeadException("second arg is not an integer");
                 }
             }
         }
         else {
-            throw new RuntimeException("head: invalid number of arguments");
+            throw new HeadException("invalid number of arguments");
         }
     }
 
@@ -268,7 +268,7 @@ class Head implements Application{
     /**
      * Checks the file exists
      * if true: wraps the file in a reader and passes to the writer method
-     * if false: throws an RuntimeException
+     * if false: throws an HeadException
      *
      * @param fileName name of the file we are reading from
      * @param OutputStreamWriter that Application output is written to
@@ -281,7 +281,7 @@ class Head implements Application{
                 writeLines(reader, writer);
             }
         } else {
-            throw new RuntimeException("head: file not found: " + fileName);
+            throw new HeadException("file not found: " + fileName);
         }
     }
 
@@ -311,7 +311,7 @@ class Tail implements Application{
     private int lineNumber = 10;
     /**
      * Executes tail command
-     * Checks for bad input (wrong number of args), throws a RuntimeException
+     * Checks for bad input (wrong number of args), throws a TailException
      * checks for stdin or filenames used
      * checks for options used, and changes the line number if so
      * calls the relevant reader method
@@ -324,7 +324,7 @@ class Tail implements Application{
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         // default number of lines is 10
         if (appArgs.isEmpty() && input.isEmpty()) {
-            throw new RuntimeException("tail: missing arguments");
+            throw new TailException("missing arguments");
         }
         if (appArgs.isEmpty()) {
             readFromStdin(input, writer);
@@ -337,7 +337,7 @@ class Tail implements Application{
         {
             String option = appArgs.get(0);
             if (!option.equals("-n")) {
-                throw new RuntimeException("tail: invalid option");
+                throw new TailException("invalid option");
             }
             else {
                 try {
@@ -345,7 +345,7 @@ class Tail implements Application{
                     readFromStdin(input, writer);
                 }
                 catch (NumberFormatException e) {
-                    throw new RuntimeException("tail: second arg is not an integer");
+                    throw new TailException("second arg is not an integer");
                 }
 
             }
@@ -353,7 +353,7 @@ class Tail implements Application{
         else if (appArgs.size() == 3){
             String option = appArgs.get(0);
             if (!option.equals("-n")) {
-                throw new RuntimeException("tail: invalid option");
+                throw new TailException("invalid option");
             }
             else {
                 try {
@@ -362,12 +362,12 @@ class Tail implements Application{
                         readFromFile(fileName, writer);
                 }
                 catch (NumberFormatException e) {
-                    throw new RuntimeException("tail: second arg is not an integer");
+                    throw new TailException("second arg is not an integer");
                 }
             }
         }
         else {
-            throw new RuntimeException("tail: invalid number of arguments");
+            throw new TailException("invalid number of arguments");
         }
     }
     /**
@@ -386,7 +386,7 @@ class Tail implements Application{
     /**
      * Checks the file exists
      * if true: wraps the file in a reader and passes to the writer method
-     * if false: throws an RuntimeException
+     * if false: throws an TailException
      *
      * @param fileName name of the file we are reading from
      * @param OutputStreamWriter that Application output is written to
@@ -399,7 +399,7 @@ class Tail implements Application{
                 writeLines(reader, writer);
             }
         } else {
-            throw new RuntimeException("tail: file not found: " + fileName);
+            throw new TailException("file not found: " + fileName);
         }
     }
     /**
@@ -450,14 +450,14 @@ class Grep implements Application{
      */
 	public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
 		if (appArgs.size() == 0) {
-            throw new RuntimeException("grep: wrong number of arguments");
+            throw new GrepException("wrong number of arguments");
         }
         try {
             this.grepPattern = Pattern.compile(appArgs.get(0));
             int numOfFiles = appArgs.size() - 1;
             if (numOfFiles == 0) {
                 if (input.isEmpty()) {
-                    throw new RuntimeException("grep: empty stdin");
+                    throw new GrepException("empty stdin");
                 }
                 else {
                     readFromStdin(input, writer);
@@ -479,7 +479,7 @@ class Grep implements Application{
         }
         catch (PatternSyntaxException e)
         {
-            throw new RuntimeException("grep: invalid regular expression");
+            throw new GrepException("invalid regular expression");
         }
 	}
     /**
@@ -498,7 +498,7 @@ class Grep implements Application{
     /**
      * Checks the file exists, gets fileName from private var
      * if true: wraps the file in a reader and passes to the writer method
-     * if false: throws an RuntimeException
+     * if false: throws an GrepException
      *
      * @param OutputStreamWriter that Application output is written to
      * @throws IOException if writer throws an error
@@ -557,7 +557,7 @@ class Cut implements Application {
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2 || appArgs.size() > 3) {
-            throw new RuntimeException("cut: wrong number of arguments");
+            throw new CutException("wrong number of arguments");
         }
 
         String option = appArgs.get(1);
@@ -615,7 +615,7 @@ class Cut implements Application {
         Path filePath = Paths.get(fileName);
 
         if (!Files.isReadable(filePath) || Files.isDirectory(filePath)) {
-            throw new RuntimeException("cut: cannot read " + fileName);
+            throw new CutException("cannot read " + fileName);
         }
 
         try (BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8)) {
@@ -654,7 +654,7 @@ class Cut implements Application {
 class Find implements Application {
     /**
      * Executes find command
-     * Throws a RuntimeException for wrong args
+     * Throws a FindException for wrong args
      * If path specified then use that Path, else current directory
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
@@ -664,7 +664,7 @@ class Find implements Application {
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() < 2) {
-            throw new RuntimeException("find: wrong number of arguments");
+            throw new FindException("wrong number of arguments");
         }
         String path = (appArgs.size() > 2) ? appArgs.get(2) : Shell.getCurrentDirectory();
         String pattern = appArgs.get(1);
@@ -687,7 +687,7 @@ class Find implements Application {
         }
         catch (SecurityException e)
         {
-            throw new RuntimeException("find: not allowed access to starting file");
+            throw new FindException("not allowed access to starting file");
         }
     }
 
@@ -706,7 +706,7 @@ class Find implements Application {
             writer.write(System.getProperty("line.separator"));
             writer.flush();
         } catch (IOException e) {
-            throw new RuntimeException("find: error while writing result");
+            throw new FindException("error while writing result");
         }
     }
 
@@ -732,7 +732,7 @@ class Uniq implements Application {
      */
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         if (appArgs.size() > 2) {
-            throw new RuntimeException("uniq: too many arguments");
+            throw new UniqException("too many arguments");
         }
         // Can expand new options by adding new booleans
         boolean ignoreCase = appArgs.get(0).equals("-i");
@@ -775,7 +775,7 @@ class Uniq implements Application {
             }
             catch (IOException e)
             {
-                throw new RuntimeException("uniq: bad filename");
+                throw new UniqException("bad filename");
             }
         }
     }
@@ -865,7 +865,7 @@ class Sort implements Application {
             // Read from the specified file
             Path filePath = Paths.get(fileName);
             if (Files.notExists(filePath) || Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
-                throw new RuntimeException("sort: wrong file argument");
+                throw new SortException("wrong file argument");
             }
             return Files.readAllLines(filePath, StandardCharsets.UTF_8);
         }
