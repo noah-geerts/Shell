@@ -57,7 +57,7 @@ class Cd implements Application{
 class Pwd implements Application{
     /**
      * Executes pwd command
-     * WrSites the name of the current directory to stdout
+     * Writes the name of the current directory to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input string for Application

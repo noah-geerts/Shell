@@ -50,7 +50,7 @@ public class Shell {
                         String cmdline = input.nextLine();
                         eval(cmdline);
                     } catch (Exception e) {
-                        System.err.println("COMP0010 shell: " + e.getMessage() + System.getProperty("line.separator"));
+                        System.err.println("COMP0010 shell: " + e.getMessage());
                     }
                 }
             }
