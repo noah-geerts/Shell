@@ -561,7 +561,7 @@ class Cut implements Application {
         }
 
         String option = appArgs.get(1);
-        String fileName = (appArgs.size() > 2) ? appArgs.get(2) : null;
+        String fileName = appArgs.size() > 2 ? appArgs.get(2) : null;
         String[] ranges = option.split(",");
 
         for (String range : ranges) {
@@ -583,7 +583,7 @@ class Cut implements Application {
     private void processRange(String range, String fileName, String input, OutputStreamWriter writer) throws IOException {
         String[] bounds = range.split("-");
         int start = parseBound(bounds[0]);
-        int end = (bounds.length > 1) ? parseBound(bounds[1]) : Integer.MAX_VALUE;
+        int end = bounds.length > 1 ? parseBound(bounds[1]) : Integer.MAX_VALUE;
 
         if (fileName == null) {
             processLine(input, start, end, writer);
@@ -599,7 +599,7 @@ class Cut implements Application {
      * @return returns 1 if it is empty, else parses the "int" to int
      */
     private int parseBound(String bound) {
-        return (bound.isEmpty()) ? 1 : Integer.parseInt(bound);
+        return bound.isEmpty() ? 1 : Integer.parseInt(bound);
     }
 
     /**
@@ -666,7 +666,7 @@ class Find implements Application {
         if (appArgs.size() < 2) {
             throw new FindException("wrong number of arguments");
         }
-        String path = (appArgs.size() > 2) ? appArgs.get(2) : Shell.getCurrentDirectory();
+        String path = appArgs.size() > 2 ? appArgs.get(2) : Shell.getCurrentDirectory();
         String pattern = appArgs.get(1);
         findFiles(path, pattern, writer);
     }
@@ -820,7 +820,7 @@ class Sort implements Application {
     public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
         // Parse the options and file name
         boolean reverseOrder = appArgs.contains("-r");
-        String fileName = (appArgs.size() > 0) ? appArgs.get(0) : null;
+        String fileName = appArgs.size() > 0 ? appArgs.get(0) : null;
 
         // Perform the sort operation
         sortLines(fileName, reverseOrder, input, writer);
