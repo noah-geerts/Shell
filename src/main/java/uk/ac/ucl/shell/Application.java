@@ -89,7 +89,7 @@ class Ls implements Application{
         if (appArgs.isEmpty()) {
             currDir = new File(Shell.getCurrentDirectory());
         } else if (appArgs.size() == 1) {
-            currDir = new File(Shell.getCurrentDirectory() + "/" + appArgs.get(0));
+            currDir = new File(Shell.getCurrentDirectory() + System.getProperty("file.separator") + appArgs.get(0));
         } else {
             throw new LsException("too many arguments");
         }

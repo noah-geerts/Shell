@@ -85,7 +85,7 @@ public class Eval implements CommandVisitor{
      * @throws FileNotFoundException if the file is a directory or does not exist.
      */
 	public static String getFileText(String fileName) throws IOException {
-		File f = new File(Shell.getCurrentDirectory() + "\\" + fileName);
+		File f = new File(Shell.getCurrentDirectory() + System.getProperty("file.separator") + fileName);
 		
 		//if the file doesn't exist or it's a directory, throw an error
 		if(f.isDirectory()) {
@@ -107,7 +107,7 @@ public class Eval implements CommandVisitor{
      * @throws FileNotFoundException if the file is a directory.
      */
 	public static OutputStreamWriter getOutputWriter(String fileName) throws IOException {
-		File f = new File(Shell.getCurrentDirectory() + "\\" + fileName);
+		File f = new File(Shell.getCurrentDirectory() + System.getProperty("file.separator") + fileName);
 		
 		//throw an error if the file is a directory
 		if(f.isDirectory()) {

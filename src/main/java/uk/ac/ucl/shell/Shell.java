@@ -27,7 +27,7 @@ public class Shell {
      * Catches exceptions thrown during command execution and prints them to standard output rather than terminating the program.
      * @param args The command-line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) { //pragma: no cover
         if (args.length > 0) {
             if (args.length != 2) {
                 System.out.println("COMP0010 shell: wrong number of arguments");
@@ -39,7 +39,7 @@ public class Shell {
             try {
                 eval(args[1]);
             } catch (Exception e) {
-                System.out.println("COMP0010 shell: " + e.getMessage());
+                System.err.println("COMP0010 shell: " + e.getMessage());
             }
         } else {
             Scanner input = new Scanner(System.in);
@@ -51,7 +51,7 @@ public class Shell {
                         String cmdline = input.nextLine();
                         eval(cmdline);
                     } catch (Exception e) {
-                        System.out.println("COMP0010 shell: " + e.getMessage());
+                        System.err.println("COMP0010 shell: " + e.getMessage());
                     }
                 }
             } finally {

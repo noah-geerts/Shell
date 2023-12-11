@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class ShellTest {
+public class AppsTest {
 
 	static String directoryPath = "testDirectory";
 	static String subDirectoryEmpty = directoryPath + System.getProperty("file.separator") + "subDirectoryempty";

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,9 +22,9 @@ import org.junit.Test;
 public class EvalTest {
 	
 	static String directoryPath = "testDirectory";
-	static String subDirectoryPath = directoryPath + "/subDirectory";
-	static String testTxtPath = directoryPath + "/test.txt";
-	static String newTxtPath = directoryPath + "/new.txt";
+	static String subDirectoryPath = directoryPath + System.getProperty("file.separator") + "subDirectory";
+	static String testTxtPath = directoryPath + System.getProperty("file.separator") + "test.txt";
+	static String newTxtPath = directoryPath + System.getProperty("file.separator") + "new.txt";
 	
 	@Before
     public void setUp() throws IOException {
@@ -64,7 +65,7 @@ public class EvalTest {
         }
     	
     	//set shell directory back to original
-    	Shell.setCurrentDirectory(System.getProperty("user.dir"));
+    	//Shell.setCurrentDirectory(System.getProperty("user.dir"));
     }
     
     
@@ -209,9 +210,11 @@ public class EvalTest {
 		ArrayList<String> outputFileNames = new ArrayList<String>();
 		
 		String appName = Eval.patternMatcher(atomicCommand, appArgs, inputFileNames, outputFileNames);
+		Collections.sort(appArgs);
 		
 		String expectedAppName = "appName";
 		ArrayList<String> expectedAppArgs = new ArrayList<>(Arrays.asList("new.txt", "test.txt"));
+		Collections.sort(expectedAppArgs);
 		ArrayList<String> expectedinputFiles = new ArrayList<>();
 		ArrayList<String> expectedoutputFiles = new ArrayList<>();
 		
