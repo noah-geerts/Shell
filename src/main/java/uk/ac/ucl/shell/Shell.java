@@ -42,8 +42,7 @@ public class Shell {
                 System.err.println("COMP0010 shell: " + e.getMessage());
             }
         } else {
-            Scanner input = new Scanner(System.in);
-            try {
+            try (Scanner input = new Scanner(System.in)) {
                 while (true) {
                     String prompt = currentDirectory + "> ";
                     System.out.print(prompt);
@@ -51,11 +50,9 @@ public class Shell {
                         String cmdline = input.nextLine();
                         eval(cmdline);
                     } catch (Exception e) {
-                        System.err.println("COMP0010 shell: " + e.getMessage());
+                        System.err.println("COMP0010 shell: " + e.getMessage() + System.getProperty("line.separator"));
                     }
                 }
-            } finally {
-                input.close();
             }
         }
     }
@@ -80,5 +77,4 @@ public class Shell {
         //run the Command tree
         c.accept(new Eval());
     }
-
 }

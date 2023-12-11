@@ -21,11 +21,11 @@ class CutException extends ApplicationException {
         super("cut: " + message);
     }
 }
-class EchoException extends ApplicationException {
+/*class EchoException extends ApplicationException {
     public EchoException(String message) {
         super("echo: " + message);
     }
-}
+}*/
 class FindException extends ApplicationException {
     public FindException(String message) {
         super("find: " + message);
@@ -46,11 +46,11 @@ class LsException extends ApplicationException {
         super("ls: " + message);
     }
 }
-class PwdException extends ApplicationException {
+/*class PwdException extends ApplicationException {
     public PwdException(String message) {
         super("pwd: " + message);
     }
-}
+}*/
 class SortException extends ApplicationException {
     public SortException(String message) {
         super("sort: " + message);
@@ -64,5 +64,10 @@ class TailException extends ApplicationException {
 class UniqException extends ApplicationException {
     public UniqException(String message) {
         super("uniq: " + message);
+    }
+}
+class MkdirException extends ApplicationException {
+    public MkdirException(String message) {
+        super("mkdir: " + message);
     }
 }

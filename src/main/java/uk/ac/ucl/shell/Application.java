@@ -57,7 +57,7 @@ class Cd implements Application{
 class Pwd implements Application{
     /**
      * Executes pwd command
-     * Writes the name of the current directory to stdout
+     * WrSites the name of the current directory to stdout
      *
      * @param appArgs the arguments input after a command separated by spaces into a list
      * @param input string for Application
@@ -879,11 +879,51 @@ class Sort implements Application {
             return new ArrayList<>(Arrays.asList(input.split(System.getProperty("line.separator"))));
         } else {
             // Read from the specified file
-            Path filePath = Paths.get(fileName);
+            File file = new File(Shell.getCurrentDirectory(), fileName);
+            Path filePath = file.toPath();
             if (Files.notExists(filePath) || Files.isDirectory(filePath) || !Files.isReadable(filePath)) {
                 throw new SortException("wrong file argument");
             }
             return Files.readAllLines(filePath, StandardCharsets.UTF_8);
+        }
+    }
+}
+
+class Mkdir implements Application{
+    /**
+     * Executes mkdir command
+     * Makes a new folder with the name specified in args
+     *
+     * @param appArgs name(s) of new directories
+     * @param input string for Application
+     * @param writer that Application output is written to
+     * @throws IOException if args is empty
+     */
+    public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException{
+        if (appArgs.isEmpty()) {
+            throw new MkdirException("missing argument(s)");
+        }
+
+        for (String dirName : appArgs) {
+            createDirectory(dirName);
+        }
+    }
+    /**
+     * Creates a new directory with the specified name.
+     * throws Mkdir Exception if the directory already exists, security error or if the creation fails
+     * @param dirName the name of the new directory to be created
+     * @throws MkdirException if there's an error
+     */
+    private void createDirectory(String dirName) throws MkdirException{
+        File newDir = new File(dirName);
+
+        if (newDir.exists()) {
+            throw new MkdirException(dirName + " already exists");
+        }
+
+        if (!newDir.mkdir())
+        {
+            throw new MkdirException("could not create " + dirName);
         }
     }
 }

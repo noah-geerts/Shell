@@ -65,5 +65,8 @@ public class AppFactoryTest {
 		
 		app = a.generateApp("sort");
 		assertTrue(app instanceof Sort);
+
+		app = a.generateApp("mkdir");
+		assertTrue(app instanceof Mkdir);
 	}
 }
