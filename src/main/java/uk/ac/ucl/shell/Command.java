@@ -8,13 +8,14 @@ import java.io.OutputStream;
  * Subclasses of `Command` implement specific types of commands like Call, Pipe, or Seq.
  */
 public abstract class Command {
-    
+
     private OutputStream output;
     private String input;
 
     /**
      * Constructs a `Command` object with specified input string and output stream.
-     * @param input The input string for the command.
+     *
+     * @param input  The input string for the command.
      * @param output The output stream where command results will be directed.
      */
     protected Command(String input, OutputStream output) {
@@ -24,6 +25,7 @@ public abstract class Command {
 
     /**
      * Accepts a visitor that performs operations specific to the implementing command type.
+     *
      * @param visitor The CommandVisitor used to visit this command.
      * @throws IOException If an I/O error occurs while visiting the command.
      */
@@ -55,9 +57,10 @@ class Call extends Command {
 
     /**
      * Constructs a `Call` object that calls an atomic command.
+     *
      * @param atomicCommand The raw string for the atomic command to be called.
-     * @param input The input string for the command.
-     * @param output The output stream where command results will be directed.
+     * @param input         The input string for the command.
+     * @param output        The output stream where command results will be directed.
      */
     public Call(String atomicCommand, String input, OutputStream output) {
         super(input, output);
@@ -66,6 +69,7 @@ class Call extends Command {
 
     /**
      * Accepts a visitor specific to `Call` commands.
+     *
      * @param visitor The CommandVisitor used to visit this command.
      * @throws IOException If an I/O error occurs while visiting the command.
      */
@@ -73,9 +77,9 @@ class Call extends Command {
         visitor.visit(this);
     }
 
-	public String getAtomicCommand() {
-		return atomicCommand;
-	}
+    public String getAtomicCommand() {
+        return atomicCommand;
+    }
 }
 
 /**
@@ -88,9 +92,10 @@ class Pipe extends Command {
 
     /**
      * Constructs a `Pipe` object that pipes output from one command to another.
-     * @param left The left-hand side command in the pipe.
-     * @param right The right-hand side command in the pipe.
-     * @param input The input string for the pipe command.
+     *
+     * @param left   The left-hand side command in the pipe.
+     * @param right  The right-hand side command in the pipe.
+     * @param input  The input string for the pipe command.
      * @param output The output stream where pipe command results will be directed.
      */
     public Pipe(Command left, Command right, String input, OutputStream output) {
@@ -101,6 +106,7 @@ class Pipe extends Command {
 
     /**
      * Accepts a visitor specific to `Pipe` commands.
+     *
      * @param visitor The CommandVisitor used to visit this command.
      * @throws IOException If an I/O error occurs while visiting the command.
      */
@@ -108,13 +114,13 @@ class Pipe extends Command {
         visitor.visit(this);
     }
 
-	public Command getLeft() {
-		return left;
-	}
+    public Command getLeft() {
+        return left;
+    }
 
-	public Command getRight() {
-		return right;
-	}
+    public Command getRight() {
+        return right;
+    }
 }
 
 /**
@@ -127,9 +133,10 @@ class Seq extends Command {
 
     /**
      * Constructs a `Seq` object that executes two commands sequentially.
-     * @param left The left-hand side command in the sequence.
-     * @param right The right-hand side command in the sequence.
-     * @param input The input string for the seq command.
+     *
+     * @param left   The left-hand side command in the sequence.
+     * @param right  The right-hand side command in the sequence.
+     * @param input  The input string for the seq command.
      * @param output The output stream where seq command results will be directed.
      */
     public Seq(Command left, Command right, String input, OutputStream output) {
@@ -140,6 +147,7 @@ class Seq extends Command {
 
     /**
      * Accepts a visitor specific to `Seq` commands.
+     *
      * @param visitor The CommandVisitor used to visit this command.
      * @throws IOException If an I/O error occurs while visiting the command.
      */
@@ -147,11 +155,11 @@ class Seq extends Command {
         visitor.visit(this);
     }
 
-	public Command getLeft() {
-		return left;
-	}
+    public Command getLeft() {
+        return left;
+    }
 
-	public Command getRight() {
-		return right;
-	}
+    public Command getRight() {
+        return right;
+    }
 }
