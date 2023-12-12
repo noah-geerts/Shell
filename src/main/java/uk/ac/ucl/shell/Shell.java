@@ -26,6 +26,7 @@ public class Shell {
      * The main method to run the shell application. Can be run as a single command or in interactive mode.
      * Catches exceptions thrown during command execution and prints them to standard output rather than terminating the program.
      * @param args The command-line arguments.
+     * @throws IOException 
      */
     public static void main(String[] args) { //pragma: no cover
         if (args.length > 0) {

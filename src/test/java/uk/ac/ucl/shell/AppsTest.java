@@ -2,6 +2,7 @@ package uk.ac.ucl.shell;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +46,6 @@ public class AppsTest {
 	static String emptyFileName = "emptyFile.txt";
 	static ByteArrayOutputStream capture;
 	static OutputStreamWriter writer;
-	static String oldDirectory = Shell.getCurrentDirectory();
 	static String sSeperator = System.getProperty("line.separator");
 
 	@Rule
@@ -91,7 +91,7 @@ public class AppsTest {
 		fileWriter.close();
 
 		// set shell directory to test directory
-		Shell.setCurrentDirectory(directory.toAbsolutePath().toString());
+		Shell.setCurrentDirectory(directoryPath);
 
 		// set up writer and capture objects to store of apps
 		capture = new ByteArrayOutputStream();
@@ -114,11 +114,11 @@ public class AppsTest {
 		} catch (IOException e) {
 			System.err.println("Failed to delete directory: " + e.getMessage());
 		}
+		Shell.setCurrentDirectory(System.getProperty("user.dir"));
 
 		// close writer and capture
 		writer.close();
 		capture.close();
-		Shell.setCurrentDirectory(oldDirectory);
 	}
 
 	@Test
@@ -164,14 +164,17 @@ public class AppsTest {
 		exceptionRule.expectMessage("ls: too many arguments");
 	}
 
-//	@Test
-//	public void testLsNonexistentDirectory() throws IOException {
-//		Application Ls = new Ls();
-//		ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentDirectory"));
-//		exceptionRule.expect(RuntimeException.class);
-//		Ls.exec(args, abcPath, writer);
-//		exceptionRule.expectMessage("ls: no such directory");
-//	}
+	@Test
+	public void testLsNonexistentDirectory() throws IOException {
+		Application Ls = new Ls();
+		ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentDirectory"));
+		try {
+			Ls.exec(args, abcPath, writer);
+			fail("expected a RuntimeException");
+		} catch (RuntimeException e) {
+			assertTrue(e.getMessage().equals("ls: directory nonexistentDirectory does not exist."));
+		}
+	}
 
 	@Test
 	public void testPwdValidExecution() throws IOException {
@@ -721,50 +724,6 @@ public class AppsTest {
 	}
 
 	@Test
-	public void testGrepInValidArgReadWithFileName() throws IOException {
-		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", "invalidfile.txt"));
-		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-		System.setOut(new PrintStream(outContent));
-		Application grep = new Grep();
-		grep.exec(args, "", writer);
-		assertEquals("grep: file not found: invalidfile.txt" + sSeperator, outContent.toString());
-	}
-/*	@Test
-	public void testGrepInValidArgReadWithFileAccess() throws IOException {
-		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", multipleLinesFileName));
-		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-		new File(multipleLines).setReadable(false);
-		System.setOut(new PrintStream(outContent));
-		Application grep = new Grep();
-		grep.exec(args, "", writer);
-		assertEquals(
-				"grep: access not permitted to file " + multipleLinesFileName + System.getProperty("line.separator"),
-				outContent.toString());
-	}*/
-
-	// System.out.println("grep: is a directory: " + this.filename);
-	// should be moved to top, above file check to validate this flow
-	// as if it is a directory but not a file then it will always return file not
-	// found
-//	@Test
-//	public void testGrepInValidArgReadWithFileAccess() throws Exception {
-//		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", multipleLinesFileName));
-//		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-//		Path filePath1 = Paths.get(Shell.getCurrentDirectory() + File.separator + multipleLinesFileName);
-//
-//		if (isWindows()) {
-//			Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + multipleLinesFileName);
-//			Files.setAttribute(filePath, "dos:readonly", false, LinkOption.NOFOLLOW_LINKS);
-//		} else {
-//			new File(multipleLines).setReadable(false);
-//		}
-//		System.setOut(new PrintStream(outContent));
-//		Application grep = new Grep();
-//		grep.exec(args, "", writer);
-//		assertEquals("grep: access not permitted to file " + multipleLinesFileName + sSeperator, outContent.toString());
-//	}
-
-	@Test
 	public void testGrepValidArgReadWithDirectory() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", multipleLinesFileName));
 		Application grep = new Grep();
@@ -831,7 +790,7 @@ public class AppsTest {
 		assertEquals(expected, output);
 	}
 
-/*	@Test
+	@Test
 	public void testCutINValidArgFile() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-9", subDirectoryPath));
 		exceptionRule.expect(RuntimeException.class);
@@ -839,9 +798,9 @@ public class AppsTest {
 		cut.exec(args, "", writer);
 		exceptionRule.expectMessage("cut: cannot read testDirectory/multipleLines.txt");
 
-	}*/
+	}
 
-/*	@Test
+	@Test
 	public void testCutValidArgInput() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4"));
 		String input = read(multipleLines, 0, false, -1);
@@ -872,7 +831,7 @@ public class AppsTest {
 		String output = capture.toString();
 		String expected = input.substring(0, 3) + sSeperator;
 		assertEquals(expected, output);
-	}*/
+	}
 
 	// Find
 	@Test
@@ -958,18 +917,17 @@ public class AppsTest {
 		assertEquals(expected.toLowerCase(), output);
 	}
 
-/*
+
 	@Test
 	public void testSortReverse() throws IOException {
 		Application sort = new Sort();
-		ArrayList<String> args = new ArrayList<>(Arrays.asList("-r", multipleLines));
-		StringBuilder expected = new StringBuilder();
+		ArrayList<String> args = new ArrayList<>(Arrays.asList("-r", "multipleLines.txt"));
 		sort.exec(args, "", writer);
 
 		String output = capture.toString();
 		assertEquals("Line 3" + sSeperator + "Line 2" + sSeperator + "Line 1" + sSeperator, output);
 	}
-*/
+
 
 	@Test
 	public void testSortReverseInput() throws IOException {
@@ -1036,7 +994,7 @@ public class AppsTest {
 		String output = capture.toString().trim();
 		String expected = "";
 
-		Path newDir = Paths.get("newDir");
+		Path newDir = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir");
 		assertTrue(Files.exists(newDir));
 		assertTrue(Files.isDirectory(newDir));
 		assertEquals(expected, output);
@@ -1060,13 +1018,13 @@ public class AppsTest {
 		mkdir.exec(args,"",writer);
 		String output = capture.toString().trim();
 		String expected = "";
-		Path newDir1 = Paths.get("newDir1");
+		Path newDir1 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir1");
 		assertTrue(Files.exists(newDir1));
 		assertTrue(Files.isDirectory(newDir1));
-		Path newDir2 = Paths.get("newDir2");
+		Path newDir2 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir2");
 		assertTrue(Files.exists(newDir2));
 		assertTrue(Files.isDirectory(newDir2));
-		Path newDir3 = Paths.get("newDir3");
+		Path newDir3 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir3");
 		assertTrue(Files.exists(newDir3));
 		assertTrue(Files.isDirectory(newDir3));
 		assertEquals(expected, output);
@@ -1081,10 +1039,6 @@ public class AppsTest {
 		exceptionRule.expectMessage("sort: wrong file argument");
 	}
 
-	private boolean isWindows() {
-		String OS = System.getProperty("os.name");
-		return OS.startsWith("Windows");
-	}
 
 	private String read(String file, int limit, boolean useLimit, int skip) {
 		BufferedReader reader;

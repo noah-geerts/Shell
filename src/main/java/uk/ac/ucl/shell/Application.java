@@ -96,7 +96,6 @@ class Ls implements Application{
         try {
             File[] listOfFiles = currDir.listFiles();
             boolean atLeastOnePrinted = false;
-            assert listOfFiles != null;
             for (File file : listOfFiles) {
                 if (!file.getName().startsWith(".")) {
                     writer.write(file.getName());
@@ -110,7 +109,7 @@ class Ls implements Application{
                 writer.flush();
             }
         } catch (NullPointerException e) {
-            throw new LsException("no such directory");
+        	throw new LsException("directory " + currDir.getName() + " does not exist.");
         }
 	}
 }
@@ -915,8 +914,7 @@ class Mkdir implements Application{
      * @throws MkdirException if there's an error
      */
     private void createDirectory(String dirName) throws MkdirException{
-        File newDir = new File(dirName);
-
+        File newDir = new File(Shell.getCurrentDirectory() + System.getProperty("file.separator") + dirName);
         if (newDir.exists()) {
             throw new MkdirException(dirName + " already exists");
         }
