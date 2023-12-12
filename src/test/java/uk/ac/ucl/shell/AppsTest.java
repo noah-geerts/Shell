@@ -765,7 +765,7 @@ public class AppsTest {
     public void testCutINValidArgFile() throws IOException {
         ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-9", subDirectoryPath));
         exceptionRule.expect(RuntimeException.class);
-        exceptionRule.expectMessage("cut: cannot read testDirectory/subDirectory");
+        exceptionRule.expectMessage("cut: cannot read testDirectory" + System.getProperty("file.separator") + "subDirectory");
         Application cut = new Cut();
         cut.exec(args, "", writer);
     }
