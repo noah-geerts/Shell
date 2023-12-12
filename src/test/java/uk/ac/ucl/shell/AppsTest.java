@@ -148,20 +148,24 @@ public class AppsTest {
 	}
 
 	@Test
-	public void testLsTwoOrMoreArgs() throws IOException {
+	public void testLsTwoArgs() throws IOException {
 		// test with two args
-		Application Ls = new Ls();
+		Application ls = new Ls();
 		ArrayList<String> args = new ArrayList<>(Arrays.asList("subDirectory", "nonexistentDirectory"));
 		exceptionRule.expect(RuntimeException.class);
-		Ls.exec(args, abcPath, writer);
 		exceptionRule.expectMessage("ls: too many arguments");
+		ls.exec(args, abcPath, writer);
+	}
 
+	@Test
+	public void testLsMoreThanTwoArgs() throws IOException {
 		// test with four arguments
+		Application ls = new Ls();
 		ArrayList<String> args2 = new ArrayList<>(Arrays.asList("subDirectory", "nonexistentDirectory1",
-				"nonexistentDiretory2", "nonexistentDirectory3"));
+				"nonexistentDirectory2", "nonexistentDirectory3"));
 		exceptionRule.expect(RuntimeException.class);
-		Ls.exec(args2, abcPath, writer);
 		exceptionRule.expectMessage("ls: too many arguments");
+		ls.exec(args2, abcPath, writer);
 	}
 
 	@Test
@@ -213,8 +217,8 @@ public class AppsTest {
 		OutputStreamWriter writer = new OutputStreamWriter(capture);
 
 		exceptionRule.expect(RuntimeException.class);
-		cd.exec(new ArrayList<>(), "", writer);
 		exceptionRule.expectMessage("cd: missing argument");
+		cd.exec(new ArrayList<>(), "", writer);
 	}
 
 	@Test
@@ -225,9 +229,8 @@ public class AppsTest {
 
 		ArrayList<String> args = new ArrayList<>(List.of("dir1", "dir2"));
 		exceptionRule.expect(RuntimeException.class);
-
-		cd.exec(args, "", writer);
 		exceptionRule.expectMessage("cd: too many arguments");
+		cd.exec(args, "", writer);
 	}
 
 	@Test
@@ -238,8 +241,8 @@ public class AppsTest {
 
 		ArrayList<String> args = new ArrayList<>(List.of("nonexistentDirectory"));
 		exceptionRule.expect(RuntimeException.class);
-		cd.exec(args, "", writer);
 		exceptionRule.expectMessage("cd: nonexistentDirectory is not an existing directory");
+		cd.exec(args, "", writer);
 	}
 
 	@Test
@@ -353,7 +356,6 @@ public class AppsTest {
 		assertEquals(expected, output);
 	}
 
-	// Current cat implementation needs a to run, this test has no file.
 	@Test
 	public void testCatLargeFile() throws IOException {
 		Application cat = new Cat();
@@ -419,10 +421,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentFile.txt"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("cat: file does not exist");
 		Application cat = new Cat();
 		cat.exec(args, "", writer);
-		exceptionRule.expectMessage("cat: file does not exist");
-
 	}
 
 	@Test
@@ -431,10 +432,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>();
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("cat: missing arguments / empty stdin");
 		Application cat = new Cat();
 		cat.exec(args, "", writer);
-		exceptionRule.expectMessage("cat: missing arguments / empty stdin");
-
 	}
 
 	// Head
@@ -443,10 +443,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>();
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: missing arguments");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: missing arguments");
-
 	}
 
 	@Test
@@ -482,10 +481,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList(singleLineFileName, "-n"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: invalid option");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: invalid option");
-
 	}
 
 	@Test
@@ -494,10 +492,9 @@ public class AppsTest {
 		String expected = read(multipleLines, 3, true, -1);
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: file not found: invalid");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: file not found: invalid");
-
 	}
 
 	@Test
@@ -505,10 +502,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "s"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: second arg is not an integer");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: second arg is not an integer");
-
 	}
 
 	@Test
@@ -527,10 +523,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-m", "2", ""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: invalid option");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: invalid option");
-
 	}
 
 	@Test
@@ -548,20 +543,18 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "s", ""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: second arg is not an integer");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: second arg is not an integer");
-
 	}
 
 	@Test
 	public void testHeadValidArgThreePlus() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "2", "a", "b"));
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("head: invalid number of arguments");
 		Application head = new Head();
 		head.exec(args, "", writer);
-		exceptionRule.expectMessage("head: invalid number of arguments");
-
 	}
 
 	// Tail
@@ -570,10 +563,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>();
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: missing arguments");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: missing arguments");
-
 	}
 
 	@Test
@@ -609,10 +601,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList(singleLineFileName, "-n"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: invalid option");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: invalid option");
-
 	}
 
 	@Test
@@ -620,10 +611,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "s"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: second arg is not an integer");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: second arg is not an integer");
-
 	}
 
 	@Test
@@ -642,10 +632,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-m", "2", ""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: invalid option");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: invalid option");
-
 	}
 
 	@Test
@@ -653,10 +642,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "2", "demo.txt"));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: file not found: demo.txt");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: file not found: demo.txt");
-
 	}
 
 	@Test
@@ -674,20 +662,18 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "s", ""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: second arg is not an integer");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: second arg is not an integer");
-
 	}
 
 	@Test
 	public void testTailValidArgThreePlus() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "2", "a", "b"));
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("tail: invalid number of arguments");
 		Application tail = new Tail();
 		tail.exec(args, "", writer);
-		exceptionRule.expectMessage("tail: invalid number of arguments");
-
 	}
 
 	// Grep
@@ -696,20 +682,18 @@ public class AppsTest {
 	public void testGrepInValidArgZero() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList());
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("grep: wrong number of arguments");
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
-		exceptionRule.expectMessage("grep: wrong number of arguments");
-
 	}
 
 	@Test
 	public void testGrepInValidArgEmptyInput() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("demo"));
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("grep: empty stdin");
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
-		exceptionRule.expectMessage("grep: empty stdin");
-
 	}
 
 	@Test
@@ -750,10 +734,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(
 				Arrays.asList("Lin^(*^%%$%$#%#^%3{]]}e \\d.*", multipleLinesFileName, singleLineFileName));
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("grep: invalid regular expression");
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
-		exceptionRule.expectMessage("grep: invalid regular expression");
-
 	}
 
 	// Cut
@@ -762,10 +745,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>(Arrays.asList(""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("cut: wrong number of arguments");
 		Application cut = new Cut();
 		cut.exec(args, "", writer);
-		exceptionRule.expectMessage("cut: wrong number of arguments");
-
 	}
 
 	@Test
@@ -773,10 +755,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>(Arrays.asList("", "", "", ""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("cut: wrong number of arguments");
 		Application cut = new Cut();
 		cut.exec(args, "", writer);
-		exceptionRule.expectMessage("cut: wrong number of arguments");
-
 	}
 
 	@Test
@@ -794,10 +775,9 @@ public class AppsTest {
 	public void testCutINValidArgFile() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-9", subDirectoryPath));
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("cut: cannot read testDirectory/subDirectory");
 		Application cut = new Cut();
 		cut.exec(args, "", writer);
-		exceptionRule.expectMessage("cut: cannot read testDirectory/multipleLines.txt");
-
 	}
 
 	@Test
@@ -839,9 +819,9 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList(""));
 
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("find: wrong number of arguments");
 		Application find = new Find();
 		find.exec(args, "", writer);
-		exceptionRule.expectMessage("find: wrong number of arguments");
 
 	}
 
@@ -880,8 +860,8 @@ public class AppsTest {
 		args.add("extraArg");
 
 		exceptionRule.expect(RuntimeException.class);
-		uniq.exec(args, "", writer);
 		exceptionRule.expectMessage("uniq: too many arguments");
+		uniq.exec(args, "", writer);
 
 	}
 
@@ -890,10 +870,8 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-i", singleLineFileName));
 		Application uniq = new Uniq();
 		exceptionRule.expect(RuntimeException.class);
-		uniq.exec(args, "", writer);
-
 		exceptionRule.expectMessage("uniq: bad filename");
-
+		uniq.exec(args, "", writer);
 	}
 
 	@Test
@@ -945,18 +923,18 @@ public class AppsTest {
 	public void testSortManyArgs() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("arg", "arg", "arg"));
 		Application sort = new Sort();
-		exceptionRule.expect(SortException.class);
+		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("sort: too many arguments");
 		sort.exec(args, "", writer);
-		exceptionRule.expectMessage("too many arguments");
 	}
 
 	@Test
 	public void testSortInvalidArgs() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("invalid Arg", "arg"));
 		Application sort = new Sort();
-		exceptionRule.expect(SortException.class);
+		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("sort: option not supported");
 		sort.exec(args, "", writer);
-		exceptionRule.expectMessage("too many arguments");
 	}
 
 	@Test
@@ -964,15 +942,15 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-r"));
 		Application sort = new Sort();
 		exceptionRule.expect(RuntimeException.class);
-		sort.exec(args, "", writer);
 		exceptionRule.expectMessage("sort: wrong file argument");
+		sort.exec(args, "", writer);
 	}
 	@Test
 	public void testMkdirNoArgs() throws IOException {
 		Application mkdir = new Mkdir();
 		exceptionRule.expect(RuntimeException.class);
-		mkdir.exec(new ArrayList<>(),"",writer);
 		exceptionRule.expectMessage("mkdir: missing argument(s)");
+		mkdir.exec(new ArrayList<>(),"",writer);
 	}
 	@Test
 	public void testMkdirSameArg() throws IOException {
@@ -981,8 +959,8 @@ public class AppsTest {
 		args.add("newDir");
 		args.add("newDir");
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("mkdir: " + "newDir" + " already exists");
 		mkdir.exec(args,"",writer);
-		exceptionRule.expectMessage("mkdir: " + "newDir" + "already exists");
 	}
 	// not sure if this is correct expected
 	@Test
@@ -1005,8 +983,8 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>();
 		args.add("/\0");
 		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("mkdir: could not create " + "/\0");
 		mkdir.exec(args,"",writer);
-		exceptionRule.expectMessage("mkdir: could not create " + "//\\**C:\\||");
 	}
 	@Test
 	public void testMkdirThreeArg() throws IOException {
@@ -1035,8 +1013,8 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList(subDirectoryPath));
 		Application sort = new Sort();
 		exceptionRule.expect(RuntimeException.class);
-		sort.exec(args, "", writer);
 		exceptionRule.expectMessage("sort: wrong file argument");
+		sort.exec(args, "", writer);
 	}
 
 
@@ -1061,5 +1039,66 @@ public class AppsTest {
 			e.printStackTrace();
 		}
 		return currentLine;
+	}
+	@Test
+	public void testTouchNoArgs() throws IOException {
+		Application touch = new Touch();
+		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("touch: missing argument(s)");
+		touch.exec(new ArrayList<>(), "", writer);
+	}
+	@Test
+	public void testTouchSameArg() throws IOException {
+		Application touch = new Touch();
+		ArrayList<String> args = new ArrayList<>();
+		args.add("newFile");
+		args.add("newFile");
+		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("touch: " + "newFile" + " already exists");
+		touch.exec(args,"",writer);
+	}
+	@Test
+	public void testTouchOneArg() throws IOException {
+		Application touch = new Touch();
+		ArrayList<String> args = new ArrayList<>();
+		args.add("newFile");
+		touch.exec(args,"",writer);
+		String output = capture.toString().trim();
+		String expected = "";
+
+		Path newFile = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newFile");
+		assertTrue(Files.exists(newFile));
+		assertTrue(Files.isRegularFile(newFile));
+		assertEquals(expected, output);
+	}
+	@Test
+	public void testTouchNameNotAllowed() throws IOException {
+		Application touch = new Touch();
+		ArrayList<String> args = new ArrayList<>();
+		args.add("/\0");
+		exceptionRule.expect(RuntimeException.class);
+		exceptionRule.expectMessage("touch: could not create " + "/\0");
+		touch.exec(args,"",writer);
+	}
+	@Test
+	public void testTouchThreeArg() throws IOException {
+		Application touch = new Touch();
+		ArrayList<String> args = new ArrayList<>();
+		args.add("newDir1");
+		args.add("newDir2");
+		args.add("newDir3");
+		touch.exec(args,"",writer);
+		String output = capture.toString().trim();
+		String expected = "";
+		Path newFile1 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir1");
+		assertTrue(Files.exists(newFile1));
+		assertTrue(Files.isRegularFile(newFile1));
+		Path newFile2 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir2");
+		assertTrue(Files.exists(newFile2));
+		assertTrue(Files.isRegularFile(newFile2));
+		Path newFile3 = Paths.get(Shell.getCurrentDirectory() + System.getProperty("file.separator") + "newDir3");
+		assertTrue(Files.exists(newFile3));
+		assertTrue(Files.isRegularFile(newFile3));
+		assertEquals(expected, output);
 	}
 }

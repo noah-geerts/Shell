@@ -15,17 +15,11 @@ class CdException extends ApplicationException {
         super("cd: " + message);
     }
 }
-
 class CutException extends ApplicationException {
     public CutException(String message) {
         super("cut: " + message);
     }
 }
-/*class EchoException extends ApplicationException {
-    public EchoException(String message) {
-        super("echo: " + message);
-    }
-}*/
 class FindException extends ApplicationException {
     public FindException(String message) {
         super("find: " + message);
@@ -46,11 +40,6 @@ class LsException extends ApplicationException {
         super("ls: " + message);
     }
 }
-/*class PwdException extends ApplicationException {
-    public PwdException(String message) {
-        super("pwd: " + message);
-    }
-}*/
 class SortException extends ApplicationException {
     public SortException(String message) {
         super("sort: " + message);
@@ -69,5 +58,10 @@ class UniqException extends ApplicationException {
 class MkdirException extends ApplicationException {
     public MkdirException(String message) {
         super("mkdir: " + message);
+    }
+}
+class TouchException extends ApplicationException {
+    public TouchException(String message) {
+        super("touch: " + message);
     }
 }

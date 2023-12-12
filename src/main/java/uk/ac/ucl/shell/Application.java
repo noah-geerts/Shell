@@ -925,3 +925,41 @@ class Mkdir implements Application{
         }
     }
 }
+
+class Touch implements Application {
+    /**
+     * Executes touch command.
+     * Creates empty files with the names specified in args.
+     *
+     * @param appArgs names of new files
+     * @param input   string for Application (not used for touch)
+     * @param writer  that Application output is written to (not used for touch)
+     * @throws IOException if args is empty or if file creation fails
+     */
+    public void exec(ArrayList<String> appArgs, String input, OutputStreamWriter writer) throws IOException {
+        if (appArgs.isEmpty()) {
+            throw new TouchException("missing argument(s)");
+        }
+
+        for (String fileName : appArgs) {
+            createFile(fileName);
+        }
+    }
+    /**
+     * Creates a new empty file with the specified name.
+     * Throws TouchException if the file already exists or if the creation fails.
+     *
+     * @param fileName the name of the new file to be created
+     * @throws TouchException if there's an error
+     */
+    private void createFile(String fileName) throws TouchException {
+        File newFile = new File(Shell.getCurrentDirectory() + System.getProperty("file.separator") + fileName);
+        try {
+            if (!newFile.createNewFile()) {
+                throw new TouchException(fileName + " already exists");
+            }
+        } catch (IOException e) {
+            throw new TouchException("could not create " + fileName);
+        }
+    }
+}

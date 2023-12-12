@@ -29,6 +29,7 @@ public class AppFactory {
 			case "uniq" -> new Uniq();
 			case "sort" -> new Sort();
 			case "mkdir" -> new Mkdir();
+			case "touch" -> new Touch();
 			default -> throw new RuntimeException(name + ": unknown application");
 		};
 	}
