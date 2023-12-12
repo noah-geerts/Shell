@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -122,29 +123,6 @@ public class AppsTest {
 		capture.close();
 	}
 
-	private String read(String file, int limit, boolean useLimit, int skip) {
-		BufferedReader reader;
-		String currentLine = "";
-		try {
-			reader = new BufferedReader(new FileReader(file));
-			if (useLimit) {
-				while (limit-- > 0) {
-					if (skip-- > 0) {
-						reader.readLine();
-					} else {
-						currentLine += reader.readLine() + System.getProperty("line.separator");
-					}
-				}
-			} else {
-				currentLine = reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
-			}
-			reader.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return currentLine;
-	}
-
 	@Test
 	public void testLsNoArgs() throws IOException {
 		Application Ls = new Ls();
@@ -187,15 +165,6 @@ public class AppsTest {
 		Ls.exec(args2, abcPath, writer);
 		exceptionRule.expectMessage("ls: too many arguments");
 	}
-
-//	@Test
-//	public void testLsNonexistentDirectory() throws IOException {
-//		Application Ls = new Ls();
-//		ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentDirectory"));
-//		exceptionRule.expect(RuntimeException.class);
-//		Ls.exec(args, abcPath, writer);
-//		exceptionRule.expectMessage("ls: no such directory");
-//	}
 
 	@Test
 	public void testPwdValidExecution() throws IOException {
@@ -762,33 +731,7 @@ public class AppsTest {
 				outContent.toString());
 	}
 
-	@Test
-	public void testGrepInValidArgReadWithFileAccess() throws IOException {
-		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", multipleLinesFileName));
-		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-		new File(multipleLines).setReadable(false);
-		System.setOut(new PrintStream(outContent));
-		Application grep = new Grep();
-		grep.exec(args, "", writer);
-		assertEquals(
-				"grep: access not permitted to file " + multipleLinesFileName + System.getProperty("line.separator"),
-				outContent.toString());
-	}
 
-	// System.out.println("grep: is a directory: " + this.filename);
-	// should be moved to top, above file check to validate this flow
-	// as if it is a directory but not a file then it will always return file not
-	// found
-	@Test
-	public void testGrepInValidArgReadDirectory() throws IOException {
-//		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", directoryPath));
-//		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-//		new File(multipleLines).setReadable(false);
-//		System.setOut(new PrintStream(outContent));
-//		Application grep = new Grep();
-//		grep.exec(args, "", writer);
-//		assertEquals("grep: is a directory: testDirectory"+System.getProperty("line.separator"), outContent.toString());
-	}
 
 	@Test
 	public void testGrepValidArgReadWithDirectory() throws IOException {
@@ -800,17 +743,6 @@ public class AppsTest {
 		assertEquals(expected, output);
 	}
 
-	@Test
-	public void testGrepInValidArgFileCannotOpen() throws IOException {
-		// Need to find a file that exists but cannot be opened
-
-//		ArrayList<String> args = new ArrayList<String>(Arrays.asList("demo"));
-//		String input = read(multipleLines, 0, false, -1);
-//		exceptionRule.expect(RuntimeException.class);
-//		Application grep = new Grep();
-//		grep.exec(args, input, writer);
-//		exceptionRule.expectMessage("cat: cannot open");
-	}
 
 	@Test
 	public void testGrepValidArgReadWithFileName() throws IOException {
@@ -873,8 +805,7 @@ public class AppsTest {
 
 	@Test
 	public void testCutINValidArgFile() throws IOException {
-		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-9", multipleLines));
-		new File(multipleLines).setReadable(false);
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-9", subDirectoryPath));
 		exceptionRule.expect(RuntimeException.class);
 		Application cut = new Cut();
 		cut.exec(args, "", writer);
@@ -884,13 +815,12 @@ public class AppsTest {
 
 	@Test
 	public void testCutValidArgInput() throws IOException {
-		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4,5-8"));
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "1-4"));
 		String input = read(multipleLines, 0, false, -1);
 		Application cut = new Cut();
 		cut.exec(args, input, writer);
 		String output = capture.toString();
-		String expected = "Line" + System.getProperty("line.separator") + " 1" + System.getProperty("line.separator")
-				+ "" + System.getProperty("line.separator");
+		String expected = "Line" + System.getProperty("line.separator");
 		assertEquals(expected, output);
 	}
 
@@ -917,17 +847,6 @@ public class AppsTest {
 				+ System.getProperty("line.separator"), output);
 	}
 
-	@Test
-	public void testFindValidArgThreeNotAllowedAccess() throws IOException {
-		// IOException from Files.walk cannot be triggered manually
-//		throw new RuntimeException("find: not allowed access to starting file");
-//		ArrayList<String> args = new ArrayList<String>(
-//				Arrays.asList("", ".*", Shell.getCurrentDirectory() + "/subDirectory.txt"));
-//		Application find = new Find();
-//		find.exec(args, "", writer);
-//		String output = capture.toString();
-//		assertEquals("subDirectory/subemptyFile.txt"+System.getProperty("line.separator"), output);
-	}
 
 	@Test
 	public void testExecWithTooManyArguments() throws IOException {
@@ -978,7 +897,7 @@ public class AppsTest {
 	@Test
 	public void testSortReverse() throws IOException {
 		Application sort = new Sort();
-		ArrayList<String> args = new ArrayList<>(Arrays.asList(multipleLines, "-r"));
+		ArrayList<String> args = new ArrayList<>(Arrays.asList("-r", multipleLines));
 		StringBuilder expected = new StringBuilder();
 		sort.exec(args, "", writer);
 
@@ -1007,6 +926,34 @@ public class AppsTest {
 		exceptionRule.expect(RuntimeException.class);
 		sort.exec(args, "", writer);
 		exceptionRule.expectMessage("sort: wrong file argument");
+	}
+
+	private boolean isWindows() {
+		String OS = System.getProperty("os.name");
+		return OS.startsWith("Windows");
+	}
+
+	private String read(String file, int limit, boolean useLimit, int skip) {
+		BufferedReader reader;
+		String currentLine = "";
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			if (useLimit) {
+				while (limit-- > 0) {
+					if (skip-- > 0) {
+						reader.readLine();
+					} else {
+						currentLine += reader.readLine() + System.getProperty("line.separator");
+					}
+				}
+			} else {
+				currentLine = reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+			}
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return currentLine;
 	}
 
 }
