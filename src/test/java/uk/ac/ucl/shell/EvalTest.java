@@ -25,7 +25,7 @@ public class EvalTest {
 	static String subDirectoryPath = directoryPath + System.getProperty("file.separator") + "subDirectory";
 	static String testTxtPath = directoryPath + System.getProperty("file.separator") + "test.txt";
 	static String newTxtPath = directoryPath + System.getProperty("file.separator") + "new.txt";
-	
+	static String oldDirectory = Shell.getCurrentDirectory();
 	@Before
     public void setUp() throws IOException {
         // set up test directories
@@ -66,6 +66,7 @@ public class EvalTest {
     	
     	//set shell directory back to original
     	//Shell.setCurrentDirectory(System.getProperty("user.dir"));
+		Shell.setCurrentDirectory(oldDirectory);
     }
     
     
@@ -127,7 +128,6 @@ public class EvalTest {
 		
 		assertTrue(appName.equals(expectedAppName) && appArgs.equals(expectedAppArgs) 
 				&& inputFileNames.equals(expectedinputFiles) && outputFileNames.equals(expectedoutputFiles));
-	
 	}
 	
 	@Test
