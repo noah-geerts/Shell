@@ -45,6 +45,7 @@ public class AppsTest {
 	static String emptyFileName = "emptyFile.txt";
 	static ByteArrayOutputStream capture;
 	static OutputStreamWriter writer;
+	static String sSeperator = System.getProperty("line.separator");
 
 	@Rule
 	public ExpectedException exceptionRule = ExpectedException.none();
@@ -61,13 +62,11 @@ public class AppsTest {
 
 		// set up test files
 		FileWriter fileWriter = new FileWriter(testGrepPath);
-		fileWriter.write("This is a line containing the pattern." + System.getProperty("line.separator")
-				+ "This is a line that doesn't.");
+		fileWriter.write("This is a line containing the pattern." + sSeperator + "This is a line that doesn't.");
 		fileWriter.close();
 
 		fileWriter = new FileWriter(abcPath);
-		fileWriter.write(
-				"AAA" + System.getProperty("line.separator") + "BBB" + System.getProperty("line.separator") + "CCC");
+		fileWriter.write("AAA" + sSeperator + "BBB" + sSeperator + "CCC");
 		fileWriter.close();
 
 		fileWriter = new FileWriter(singleLine);
@@ -75,13 +74,11 @@ public class AppsTest {
 		fileWriter.close();
 
 		fileWriter = new FileWriter(multipleLines);
-		fileWriter.write("Line 1" + System.getProperty("line.separator") + "Line 2"
-				+ System.getProperty("line.separator") + "Line 3");
+		fileWriter.write("Line 1" + sSeperator + "Line 2" + sSeperator + "Line 3");
 		fileWriter.close();
 
 		fileWriter = new FileWriter(mixedContent);
-		fileWriter.write("This is a line." + System.getProperty("line.separator") + "Line 2"
-				+ System.getProperty("line.separator") + "Another line.");
+		fileWriter.write("This is a line." + sSeperator + "Line 2" + sSeperator + "Another line.");
 		fileWriter.close();
 
 		fileWriter = new FileWriter(emptyFile);
@@ -89,8 +86,7 @@ public class AppsTest {
 		fileWriter.close();
 
 		fileWriter = new FileWriter(subemptyFile);
-		fileWriter.write("Sample" + System.getProperty("line.separator") + "empty"
-				+ System.getProperty("line.separator") + "file" + System.getProperty("line.separator"));
+		fileWriter.write("Sample" + sSeperator + "empty" + sSeperator + "file" + sSeperator);
 		fileWriter.close();
 
 		// set shell directory to test directory
@@ -130,7 +126,7 @@ public class AppsTest {
 
 		String output = capture.toString();
 		String expected = "multipleLines.txt\tsubDirectory\tsingleLine.txt\tabc.txt\temptyFile.txt\ttestGrep.txt\tmixedContent.txt\tsubDirectoryemptyr"
-				+ System.getProperty("line.separator");
+				+ sSeperator;
 		String files[] = output.split("\\s+");
 		for (String string : files) {
 			assertTrue(expected.contains(string));
@@ -166,6 +162,15 @@ public class AppsTest {
 		exceptionRule.expectMessage("ls: too many arguments");
 	}
 
+//	@Test
+//	public void testLsNonexistentDirectory() throws IOException {
+//		Application Ls = new Ls();
+//		ArrayList<String> args = new ArrayList<>(Arrays.asList("nonexistentDirectory"));
+//		exceptionRule.expect(RuntimeException.class);
+//		Ls.exec(args, abcPath, writer);
+//		exceptionRule.expectMessage("ls: no such directory");
+//	}
+
 	@Test
 	public void testPwdValidExecution() throws IOException {
 		Application pwd = new Pwd();
@@ -177,7 +182,7 @@ public class AppsTest {
 		writer.close();
 
 		String output = capture.toString();
-		String expected = Shell.getCurrentDirectory() + System.getProperty("line.separator");
+		String expected = Shell.getCurrentDirectory() + sSeperator;
 		assertEquals(expected, output);
 	}
 
@@ -239,7 +244,7 @@ public class AppsTest {
 		Echo.exec(new ArrayList<String>(), "", writer);
 
 		String output = capture.toString();
-		String expected = System.getProperty("line.separator");
+		String expected = sSeperator;
 
 		assertEquals(output, expected);
 	}
@@ -247,11 +252,10 @@ public class AppsTest {
 	@Test
 	public void testEchoNoArgsSomeInput() throws IOException {
 		Application Echo = new Echo();
-		Echo.exec(new ArrayList<String>(), "input here" + System.getProperty("line.separator") + " more input here",
-				writer);
+		Echo.exec(new ArrayList<String>(), "input here" + sSeperator + " more input here", writer);
 
 		String output = capture.toString();
-		String expected = System.getProperty("line.separator");
+		String expected = sSeperator;
 
 		assertEquals(output, expected);
 	}
@@ -264,7 +268,7 @@ public class AppsTest {
 		Echo.exec(args, "", writer);
 
 		String output = capture.toString();
-		String expected = "hello, world " + System.getProperty("line.separator");
+		String expected = "hello, world " + sSeperator;
 
 		assertEquals(expected, output);
 	}
@@ -278,7 +282,7 @@ public class AppsTest {
 		Echo.exec(args, "", writer);
 
 		String output = capture.toString();
-		String expected = "Hello, world! " + System.getProperty("line.separator");
+		String expected = "Hello, world! " + sSeperator;
 
 		assertEquals(expected, output);
 	}
@@ -293,7 +297,7 @@ public class AppsTest {
 			expected.append("world! ");
 		}
 		args.add("world!");
-		expected.append("world! " + System.getProperty("line.separator"));
+		expected.append("world! " + sSeperator);
 		Echo.exec(args, "", writer);
 
 		String output = capture.toString();
@@ -319,7 +323,7 @@ public class AppsTest {
 		cat.exec(args, "", writer);
 
 		String output = capture.toString();
-		String expected = "This is a single line." + System.getProperty("line.separator");
+		String expected = "This is a single line." + sSeperator;
 		assertEquals(output, expected);
 	}
 
@@ -330,8 +334,7 @@ public class AppsTest {
 		cat.exec(args, "", writer);
 
 		String output = capture.toString();
-		String expected = "Line 1" + System.getProperty("line.separator") + "Line 2"
-				+ System.getProperty("line.separator") + "Line 3" + System.getProperty("line.separator");
+		String expected = "Line 1" + sSeperator + "Line 2" + sSeperator + "Line 3" + sSeperator;
 		assertEquals(expected, output);
 	}
 
@@ -342,8 +345,7 @@ public class AppsTest {
 		cat.exec(args, "", writer);
 
 		String output = capture.toString();
-		String expected = "This is a line." + System.getProperty("line.separator") + "Line 2"
-				+ System.getProperty("line.separator") + "Another line." + System.getProperty("line.separator");
+		String expected = "This is a line." + sSeperator + "Line 2" + sSeperator + "Another line." + sSeperator;
 
 		assertEquals(expected, output);
 	}
@@ -356,10 +358,10 @@ public class AppsTest {
 		StringBuilder expected = new StringBuilder();
 		for (int i = 0; i < 1000; i++) {
 			String line = "This is line " + (i + 1) + ".";
-			expected.append(line).append(System.getProperty("line.separator"));
+			expected.append(line).append(sSeperator);
 		}
 		cat.exec(args, expected.toString(), writer);
-		expected.append(System.getProperty("line.separator"));
+		expected.append(sSeperator);
 
 		String output = capture.toString();
 		assertEquals(expected.toString(), output);
@@ -371,8 +373,7 @@ public class AppsTest {
 
 		ArrayList<String> args = new ArrayList<>(Arrays.asList(singleLineFileName));
 		// Read content from singleLine.txt and append standard input
-		String expectedOutput = "This is a single line." + System.getProperty("line.separator") + standardInput
-				+ System.getProperty("line.separator");
+		String expectedOutput = "This is a single line." + sSeperator + standardInput + sSeperator;
 
 		Application cat = new Cat();
 		cat.exec(args, standardInput, writer);
@@ -386,9 +387,8 @@ public class AppsTest {
 		ArrayList<String> args = new ArrayList<>(Arrays.asList("singleLine.txt", "multipleLines.txt"));
 
 		// Read content from singleLine.txt and multipleLines.txt
-		String expectedOutput = "This is a single line." + System.getProperty("line.separator") + "Line 1"
-				+ System.getProperty("line.separator") + "Line 2" + System.getProperty("line.separator") + "Line 3"
-				+ System.getProperty("line.separator");
+		String expectedOutput = "This is a single line." + sSeperator + "Line 1" + sSeperator + "Line 2" + sSeperator
+				+ "Line 3" + sSeperator;
 
 		Application cat = new Cat();
 		cat.exec(args, "", writer);
@@ -401,7 +401,7 @@ public class AppsTest {
 	public void testCatReadFromStandardInput() throws IOException {
 		String standardInput = "This is input from standard input.";
 		ArrayList<String> args = new ArrayList<>();
-		String expectedOutput = standardInput + System.getProperty("line.separator");
+		String expectedOutput = standardInput + sSeperator;
 
 		Application cat = new Cat();
 		cat.exec(args, standardInput, writer);
@@ -454,7 +454,7 @@ public class AppsTest {
 		for (int i = 0; i < 1000; i++) {
 			String line = "This is line " + (i + 1) + ".";
 			if (i < 10) {
-				expected.append(line).append(System.getProperty("line.separator"));
+				expected.append(line).append(sSeperator);
 			}
 		}
 		head.exec(args, expected.toString(), writer);
@@ -471,7 +471,7 @@ public class AppsTest {
 		head.exec(args, "", writer);
 
 		String output = capture.toString();
-		assertEquals(singleLineFileContent + System.getProperty("line.separator"), output);
+		assertEquals(singleLineFileContent + sSeperator, output);
 	}
 
 	@Test
@@ -581,7 +581,7 @@ public class AppsTest {
 		for (int i = 0; i < 1000; i++) {
 			String line = "This is line " + (i + 1) + ".";
 			if (i < 10) {
-				expected.append(line).append(System.getProperty("line.separator"));
+				expected.append(line).append(sSeperator);
 			}
 		}
 		tail.exec(args, expected.toString(), writer);
@@ -598,7 +598,7 @@ public class AppsTest {
 		tail.exec(args, "", writer);
 
 		String output = capture.toString();
-		assertEquals(singleLineFileContent + System.getProperty("line.separator"), output);
+		assertEquals(singleLineFileContent + sSeperator, output);
 	}
 
 	@Test
@@ -716,7 +716,7 @@ public class AppsTest {
 		Application grep = new Grep();
 		grep.exec(args, input, writer);
 		String output = capture.toString();
-		String expected = read(multipleLines, 1, false, -1) + System.getProperty("line.separator");
+		String expected = read(multipleLines, 1, false, -1) + sSeperator;
 		assertEquals(expected, output);
 	}
 
@@ -727,11 +727,26 @@ public class AppsTest {
 		System.setOut(new PrintStream(outContent));
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
-		assertEquals("grep: file not found: invalidfile.txt" + System.getProperty("line.separator"),
-				outContent.toString());
+		assertEquals("grep: file not found: invalidfile.txt" + sSeperator, outContent.toString());
 	}
 
-
+//	@Test
+//	public void testGrepInValidArgReadWithFileAccess() throws Exception {
+//		ArrayList<String> args = new ArrayList<String>(Arrays.asList("Line \\d.*", multipleLinesFileName));
+//		ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+//		Path filePath1 = Paths.get(Shell.getCurrentDirectory() + File.separator + multipleLinesFileName);
+//
+//		if (isWindows()) {
+//			Path filePath = Paths.get(Shell.getCurrentDirectory() + File.separator + multipleLinesFileName);
+//			Files.setAttribute(filePath, "dos:readonly", false, LinkOption.NOFOLLOW_LINKS);
+//		} else {
+//			new File(multipleLines).setReadable(false);
+//		}
+//		System.setOut(new PrintStream(outContent));
+//		Application grep = new Grep();
+//		grep.exec(args, "", writer);
+//		assertEquals("grep: access not permitted to file " + multipleLinesFileName + sSeperator, outContent.toString());
+//	}
 
 	@Test
 	public void testGrepValidArgReadWithDirectory() throws IOException {
@@ -739,10 +754,9 @@ public class AppsTest {
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
 		String output = capture.toString();
-		String expected = read(multipleLines, 1, false, -1) + System.getProperty("line.separator");
+		String expected = read(multipleLines, 1, false, -1) + sSeperator;
 		assertEquals(expected, output);
 	}
-
 
 	@Test
 	public void testGrepValidArgReadWithFileName() throws IOException {
@@ -751,9 +765,8 @@ public class AppsTest {
 		Application grep = new Grep();
 		grep.exec(args, "", writer);
 		String output = capture.toString();
-		String expected = "multipleLines.txt: Line 1" + System.getProperty("line.separator")
-				+ "multipleLines.txt: Line 2" + System.getProperty("line.separator") + "multipleLines.txt: Line 3"
-				+ System.getProperty("line.separator") + "";
+		String expected = "multipleLines.txt: Line 1" + sSeperator + "multipleLines.txt: Line 2" + sSeperator
+				+ "multipleLines.txt: Line 3" + sSeperator + "";
 		assertEquals(expected, output);
 	}
 
@@ -797,9 +810,8 @@ public class AppsTest {
 		Application cut = new Cut();
 		cut.exec(args, "", writer);
 		String output = capture.toString();
-		String expected = "Line" + System.getProperty("line.separator") + "Line" + System.getProperty("line.separator")
-				+ "Line" + System.getProperty("line.separator") + " 1" + System.getProperty("line.separator") + " 2"
-				+ System.getProperty("line.separator") + " 3" + System.getProperty("line.separator");
+		String expected = "Line" + sSeperator + "Line" + sSeperator + "Line" + sSeperator + " 1" + sSeperator + " 2"
+				+ sSeperator + " 3" + sSeperator;
 		assertEquals(expected, output);
 	}
 
@@ -820,7 +832,29 @@ public class AppsTest {
 		Application cut = new Cut();
 		cut.exec(args, input, writer);
 		String output = capture.toString();
-		String expected = "Line" + System.getProperty("line.separator");
+		String expected = "Line" + sSeperator;
+		assertEquals(expected, output);
+	}
+
+	@Test
+	public void testCutValidArgNoEndBoundInput() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "2"));
+		String input = read(multipleLines, 0, false, -1);
+		Application cut = new Cut();
+		cut.exec(args, input, writer);
+		String output = capture.toString();
+		String expected = input.substring(1) + sSeperator;
+		assertEquals(expected, output);
+	}
+
+	@Test
+	public void testCutValidArgNoStartBoundInput() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-n", "-3"));
+		String input = read(multipleLines, 0, false, -1);
+		Application cut = new Cut();
+		cut.exec(args, input, writer);
+		String output = capture.toString();
+		String expected = input.substring(0, 3) + sSeperator;
 		assertEquals(expected, output);
 	}
 
@@ -843,10 +877,24 @@ public class AppsTest {
 		Application find = new Find();
 		find.exec(args, "", writer);
 		String output = capture.toString();
-		assertEquals("subDirectory" + System.getProperty("file.separator") + "subemptyFile.txt"
-				+ System.getProperty("line.separator"), output);
+		assertEquals("subDirectory" + System.getProperty("file.separator") + "subemptyFile.txt" + sSeperator, output);
 	}
 
+	@Test
+	public void testFindValidNoPathArgThree() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("", ".*"));
+		Application find = new Find();
+		find.exec(args, "", writer);
+		String output = capture.toString();
+
+		String files[] = output.split("\\s+");
+		String expected = "subDirectory" + System.getProperty("file.separator") + "subemptyFile.txt" + sSeperator
+				+ "abc.txt" + sSeperator + "mixedContent.txt" + sSeperator + "multipleLines.txt" + sSeperator
+				+ "emptyFile.txt" + sSeperator + "singleLine.txt" + sSeperator + "testGrep.txt" + sSeperator;
+		for (String string : files) {
+			assertTrue(expected.contains(string));
+		}
+	}
 
 	@Test
 	public void testExecWithTooManyArguments() throws IOException {
@@ -902,8 +950,7 @@ public class AppsTest {
 		sort.exec(args, "", writer);
 
 		String output = capture.toString();
-		assertEquals("Line 3" + System.getProperty("line.separator") + "Line 2" + System.getProperty("line.separator")
-				+ "Line 1" + System.getProperty("line.separator"), output);
+		assertEquals("Line 3" + sSeperator + "Line 2" + sSeperator + "Line 1" + sSeperator, output);
 	}
 
 	@Test
@@ -914,14 +961,40 @@ public class AppsTest {
 		sort.exec(args, input, writer);
 
 		String output = capture.toString();
-		String expected = "Line 1" + System.getProperty("line.separator") + "Line 2"
-				+ System.getProperty("line.separator") + "Line 3" + System.getProperty("line.separator");
+		String expected = "Line 1" + sSeperator + "Line 2" + sSeperator + "Line 3" + sSeperator;
 		assertEquals(expected, output);
 	}
 
 	@Test
-	public void testUniqInValidArgFile() throws IOException {
+	public void testSortManyArgs() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("arg", "arg", "arg"));
+		Application sort = new Sort();
+		exceptionRule.expect(SortException.class);
+		sort.exec(args, "", writer);
+		exceptionRule.expectMessage("too many arguments");
+	}
+
+	@Test
+	public void testSortInvalidArgs() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList("invalid Arg", "arg"));
+		Application sort = new Sort();
+		exceptionRule.expect(SortException.class);
+		sort.exec(args, "", writer);
+		exceptionRule.expectMessage("too many arguments");
+	}
+
+	@Test
+	public void testSortInValidArgFile() throws IOException {
 		ArrayList<String> args = new ArrayList<String>(Arrays.asList("-r"));
+		Application sort = new Sort();
+		exceptionRule.expect(RuntimeException.class);
+		sort.exec(args, "", writer);
+		exceptionRule.expectMessage("sort: wrong file argument");
+	}
+
+	@Test
+	public void testSortInValidArgFileDir() throws IOException {
+		ArrayList<String> args = new ArrayList<String>(Arrays.asList(subDirectoryPath));
 		Application sort = new Sort();
 		exceptionRule.expect(RuntimeException.class);
 		sort.exec(args, "", writer);
@@ -943,11 +1016,11 @@ public class AppsTest {
 					if (skip-- > 0) {
 						reader.readLine();
 					} else {
-						currentLine += reader.readLine() + System.getProperty("line.separator");
+						currentLine += reader.readLine() + sSeperator;
 					}
 				}
 			} else {
-				currentLine = reader.lines().collect(Collectors.joining(System.getProperty("line.separator")));
+				currentLine = reader.lines().collect(Collectors.joining(sSeperator));
 			}
 			reader.close();
 		} catch (Exception e) {
