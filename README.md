@@ -1,38 +1,38 @@
 [![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-7f7980b617ed060a017424585567c406b6ee15c891e84e1186181d67ecf80aa0.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=12426757)
-# Shell
+# COMP0100 Shell
 
-Shell is a [shell](https://en.wikipedia.org/wiki/Shell_(computing)) created for educational purposes. 
-Similarly to other shells, it provides a [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop), an interactive environment that allows users to execute commands. Shell has a simple language for specifying commands that resembles [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)). This language allows, for example, calling applications and connecting the output of one application to the input of another application through a [pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)). Shell also provides its own implementations of widely-used UNIX applications for file system and text manipulation: [echo](https://en.wikipedia.org/wiki/Echo_(command)), [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), etc. 
+COMP0100 Shell is a [COMP0100 Shell](https://en.wikipedia.org/wiki/COMP0100 Shell_(computing)) created for educational purposes. 
+Similarly to other COMP0100 Shells, it provides a [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop), an interactive environment that allows users to execute commands. COMP0100 Shell has a simple language for specifying commands that resembles [Bash](https://en.wikipedia.org/wiki/Bash_(Unix_COMP0100 Shell)). This language allows, for example, calling applications and connecting the output of one application to the input of another application through a [pipeline](https://en.wikipedia.org/wiki/Pipeline_(Unix)). COMP0100 Shell also provides its own implementations of widely-used UNIX applications for file system and text manipulation: [echo](https://en.wikipedia.org/wiki/Echo_(command)), [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), etc. 
 
-## Executing & Testing Shell
+## Executing & Testing COMP0100 Shell
 
-Shell can be executed in a Docker container. To build a container image (let's call it `shell`), run
+COMP0100 Shell can be executed in a Docker container. To build a container image (let's call it `COMP0100 Shell`), run
 
-    docker build -t shell .
+    docker build -t COMP0100 Shell .
 
-To execute the shell in interactive mode, run
+To execute the COMP0100 Shell in interactive mode, run
 
-    docker run -it --rm shell /comp0010/sh
+    docker run -it --rm COMP0100 Shell /comp0010/sh
 
-To execute the shell in non-interactive mode (to evaluate a specific command such as `echo foo`), run
+To execute the COMP0100 Shell in non-interactive mode (to evaluate a specific command such as `echo foo`), run
 
-    docker run --rm shell /comp0010/sh -c 'echo foo'
+    docker run --rm COMP0100 Shell /comp0010/sh -c 'echo foo'
 
 To execute unit tests, run
 
-    docker run -p 80:8000 -ti --rm shell /comp0010/tools/test
+    docker run -p 80:8000 -ti --rm COMP0100 Shell /comp0010/tools/test
 
 Then, the results of unit testing will be available at [http://localhost](http://localhost)
 
 To execute code analysis, run
 
-    docker run -p 80:8000 -ti --rm shell /comp0010/tools/analysis
+    docker run -p 80:8000 -ti --rm COMP0100 Shell /comp0010/tools/analysis
 
 Then, the results of code analysis will be available at [http://localhost](http://localhost)
 
 To execute test coverage, run
 
-    docker run -p 80:8000 -ti --rm shell /comp0010/tools/coverage
+    docker run -p 80:8000 -ti --rm COMP0100 Shell /comp0010/tools/coverage
 
 Then, the results of coverage computation will be available at [http://localhost](http://localhost)
 
@@ -46,11 +46,11 @@ Then, execute system tests using the following command (Python 3.7 or higher is 
 
 Individual system tests (e.g. `test_cat`) can be executed as
 
-    python system_test/tests.py -v TestShell.test_cat
+    python system_test/tests.py -v TestCOMP0100 Shell.test_cat
     
 # Language
 
-A shell can be considered as a language for executing commands. Shell is an interactive shell, that is it parses user's command lines and executes the specified commands in a loop, known also as [REPL]((https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)), that
+A COMP0100 Shell can be considered as a language for executing commands. COMP0100 Shell is an interactive COMP0100 Shell, that is it parses user's command lines and executes the specified commands in a loop, known also as [REPL]((https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop)), that
 
 1. prints a prompt message;
 2. parses user's command;
@@ -58,15 +58,15 @@ A shell can be considered as a language for executing commands. Shell is an inte
 4. prints the output;
 5. goes to step 1.
 
-In a shell, applications play a role similar to that of functions in programming languages like Java and Python. A command line application in UNIX can be considered as a black-box with two inputs ([command line arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments) and [stdin](https://en.wikipedia.org/wiki/Standard_streams#Standard_input_(stdin))) and three outputs ([stdout](https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout)), [stderr](https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr)) and [exit code](https://en.wikipedia.org/wiki/Exit_status)). Command line arguments is a list of strings; stdin, stdout and stderr are sequences of bytes; exit code is a number. In Shell, exceptions are used instead of stderr and exit codes. 
+In a COMP0100 Shell, applications play a role similar to that of functions in programming languages like Java and Python. A command line application in UNIX can be considered as a black-box with two inputs ([command line arguments](https://en.wikipedia.org/wiki/Command-line_interface#Arguments) and [stdin](https://en.wikipedia.org/wiki/Standard_streams#Standard_input_(stdin))) and three outputs ([stdout](https://en.wikipedia.org/wiki/Standard_streams#Standard_output_(stdout)), [stderr](https://en.wikipedia.org/wiki/Standard_streams#Standard_error_(stderr)) and [exit code](https://en.wikipedia.org/wiki/Exit_status)). Command line arguments is a list of strings; stdin, stdout and stderr are sequences of bytes; exit code is a number. In COMP0100 Shell, exceptions are used instead of stderr and exit codes. 
 
-![Applications in UNIX and Shell](apps.svg)
+![Applications in UNIX and COMP0100 Shell](apps.svg)
 
-In this document, the syntax of Shell is specified using [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form) notation.
+In this document, the syntax of COMP0100 Shell is specified using [BNF](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form) notation.
 
 ## Command Line Parsing
 
-A command may contain several subcommands. When Shell receives a command line, it
+A command may contain several subcommands. When COMP0100 Shell receives a command line, it
 
 1. parses the command line on the command level. It recognizes three kind of commands: call command, sequence command, and pipe command;
 2. evaluates the recognized commands in the proper order.
@@ -82,7 +82,7 @@ A non-keyword character is any character except for newlines, single quotes, dou
 
 ## Quoting
 
-[Quoting](https://www.gnu.org/software/bash/manual/html_node/Quoting.html) is used to remove the special meaning of certain characters or words to the shell.
+[Quoting](https://www.gnu.org/software/bash/manual/html_node/Quoting.html) is used to remove the special meaning of certain characters or words to the COMP0100 Shell.
 
 To pass several arguments to an application, we can separate them with spaces:
 
@@ -94,9 +94,9 @@ In this example, `echo` gets two command line arguments: `hello` and `world`. In
 
 In this case, `echo` receives `hello world` as a single argument.
 
-Shell supports three kinds of quotes: single quotes ```'```, double quotes ```"``` and backquotes ``` ` ```. The first and the second ones are used to disable interpretation of special characters, the last one is used to make command substitution.
+COMP0100 Shell supports three kinds of quotes: single quotes ```'```, double quotes ```"``` and backquotes ``` ` ```. The first and the second ones are used to disable interpretation of special characters, the last one is used to make command substitution.
 
-Shell uses the following grammar to parse quoted strings:
+COMP0100 Shell uses the following grammar to parse quoted strings:
 
     <quoted> ::= <single-quoted> | <double-quoted> | <backquoted>
     <single-quoted> ::= "'" <non-newline and non-single-quote> "'"
@@ -111,7 +111,7 @@ Note that the rule for double quotes is different from single quotes: double quo
 
 the outer `echo` receives one argument rather than two.
 
-Note that compared with e.g. Bash, Shell does not have character escaping.
+Note that compared with e.g. Bash, COMP0100 Shell does not have character escaping.
 
 ## Call Command
 
@@ -121,7 +121,7 @@ A call command executes an application with specified inputs. For example,
 
 finds all lines of the file `text1.txt` that contain the string `Interesting String` as a substring and saves them in the file `result.txt`.
 
-Shell uses the following grammar to parse call commands:
+COMP0100 Shell uses the following grammar to parse call commands:
 
     <call> ::= [ <whitespace> ] [ <redirection> <whitespace> ]* <argument> [ <whitespace> <atom> ]* [ <whitespace> ]
     <atom> ::= <redirection> | <argument>
@@ -139,7 +139,7 @@ A call command is evaluated in the following order:
 4. the application name is resolved (the first `<argument>` without a redirection operator is the application to be called);
 5.	the specified application is executed.
 
-Before executing an application, Shell interprets the [redirections](https://www.gnu.org/software/bash/manual/html_node/Redirections.html) commands in the following way:
+Before executing an application, COMP0100 Shell interprets the [redirections](https://www.gnu.org/software/bash/manual/html_node/Redirections.html) commands in the following way:
 
 1. opens the file following the `<` symbol for input redirection; 
 2. opens the file following the `>` symbol for output redirection;
@@ -147,7 +147,7 @@ Before executing an application, Shell interprets the [redirections](https://www
 4. if the file specified for input redirection does not exist, throws an exception;
 5. if the file specified for output redirection does not exist, creates it.
 
-After that, Shell runs the specified application, supplying given command line arguments and redirection streams.
+After that, COMP0100 Shell runs the specified application, supplying given command line arguments and redirection streams.
 
 ## Sequence Command
 
@@ -188,7 +188,7 @@ concatenates all files in the directory `articles`.
 
 The symbol `*` (asterisk) in an unquoted part of an argument is interpreted as globbing.
 
-For each argument `ARG` that contains unquoted `*` (asterisk), Shell performs the following:
+For each argument `ARG` that contains unquoted `*` (asterisk), COMP0100 Shell performs the following:
 
 1. collects all paths to existing files and directories such that these paths can be obtained by replacing all the unquoted asterisk symbols in `ARG` by some (possibly empty) sequences of non-slash characters.
 2. if there are no such paths, leaves `ARG` unchanges.
@@ -208,9 +208,9 @@ A part of a call command surrounded by backquotes ``` ` ``` is interpreted as co
 
 For each part `SUBCMD` of the call command `CALL` surrounded by backquotes:
 
-1. `SUBCMD` is evaluated as a separate shell command yielding the output `OUT`.
+1. `SUBCMD` is evaluated as a separate COMP0100 Shell command yielding the output `OUT`.
 2. `SUBCMD`, together with the backquotes, is substituted in `CALL` with `OUT`. After substitution, the symbols in `OUT` are interpreted the following way:
-    - whitespace characters are used for argument splitting. Since our shell does not support multi-line commands, newlines in `OUT` are replaced with spaces;
+    - whitespace characters are used for argument splitting. Since our COMP0100 Shell does not support multi-line commands, newlines in `OUT` are replaced with spaces;
     - other characters (including quotes) are not interpreted during the next parsing step as special characters.
 3. the modified `CALL` is evaluated. Note that there cannot be nested/recursive command substitutions.
 
@@ -218,11 +218,11 @@ Command substitution is performed after command-level parsing but before argumen
 
 # Applications
 
-Shell provides implementations of widely-used UNIX applications: [cd](https://en.wikipedia.org/wiki/Cd_(command)), [pwd](https://en.wikipedia.org/wiki/Pwd), [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), [echo](https://en.wikipedia.org/wiki/Echo_(command)), [head](https://en.wikipedia.org/wiki/Head_(Unix)), [tail](https://en.wikipedia.org/wiki/Tail_(Unix)), [grep](https://en.wikipedia.org/wiki/Grep), [find](https://en.wikipedia.org/wiki/Find_(Unix)), [sort](https://en.wikipedia.org/wiki/Sort_(Unix)), [uniq](https://en.wikipedia.org/wiki/Uniq), [cut](https://en.wikipedia.org/wiki/Cut_(Unix)), and also their unsafe versions. 
+COMP0100 Shell provides implementations of widely-used UNIX applications: [cd](https://en.wikipedia.org/wiki/Cd_(command)), [pwd](https://en.wikipedia.org/wiki/Pwd), [ls](https://en.wikipedia.org/wiki/Ls), [cat](https://en.wikipedia.org/wiki/Cat_(Unix)), [echo](https://en.wikipedia.org/wiki/Echo_(command)), [head](https://en.wikipedia.org/wiki/Head_(Unix)), [tail](https://en.wikipedia.org/wiki/Tail_(Unix)), [grep](https://en.wikipedia.org/wiki/Grep), [find](https://en.wikipedia.org/wiki/Find_(Unix)), [sort](https://en.wikipedia.org/wiki/Sort_(Unix)), [uniq](https://en.wikipedia.org/wiki/Uniq), [cut](https://en.wikipedia.org/wiki/Cut_(Unix)), and also their unsafe versions. 
 
-Compared to most UNIX shells, Shell has some important differences in handling applications:
+Compared to most UNIX COMP0100 Shells, COMP0100 Shell has some important differences in handling applications:
 
-- Applications are executed inside the shell process, rather than new separate processes.
+- Applications are executed inside the COMP0100 Shell process, rather than new separate processes.
 - Applications throw exceptions instead of using exit codes and stderr.
 - Applications do not read stdin directly from keyboard, but can only receive it from redirections or pipelines. If an application expects data from stdin, but it is not provided, the application should throw an exception.
 
@@ -332,4 +332,4 @@ Sorts the contents of a file/stdin line by line and prints the result to stdout.
 
 ## Unsafe applications
 
-In Shell, each application has an unsafe variant. An unsafe version of an application is an application that has the same semantics as the original application, but instead of raising exceptions, it prints the error message to its stdout. This feature can be used to prevent long sequences from terminating early when some intermediate commands fail. The names of unsafe applications are prefixed with `_`, e.g. `_ls` and `_grep`.
+In COMP0100 Shell, each application has an unsafe variant. An unsafe version of an application is an application that has the same semantics as the original application, but instead of raising exceptions, it prints the error message to its stdout. This feature can be used to prevent long sequences from terminating early when some intermediate commands fail. The names of unsafe applications are prefixed with `_`, e.g. `_ls` and `_grep`.
